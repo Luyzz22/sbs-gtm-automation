@@ -3,6 +3,7 @@ import os
 import yaml
 from pathlib import Path
 import openai
+import json
 from datetime import datetime
 
 st.set_page_config(page_title="LinkedIn Posts", page_icon="✍️")
@@ -38,7 +39,7 @@ with st.sidebar:
     length = st.slider("Länge (Wörter)", 100, 400, 250)
 
 # Main Content
-tab1, tab2, tab3 = st.tabs(["📝 Neuer Post", "📅 Content-Kalender", "📊 Posting-Plan"])
+tab1, tab2, tab3, tab4 = st.tabs(["📝 Neuer Post", "📚 Post-Serie", "📅 Content-Kalender", "📊 Posting-Plan"])
 
 with tab1:
     st.subheader("Post generieren")
@@ -160,7 +161,115 @@ Schreibe NUR den Post, keine Metakommentare."""
                 use_container_width=True
             )
 
+
 with tab2:
+    st.subheader("📚 Content-Serie generieren")
+    st.info("💡 Erstelle automatisch eine Serie von 5 thematisch verbundenen LinkedIn Posts")
+    
+    serie_theme = st.text_input("Hauptthema der Serie", 
+                                placeholder="z.B. Digital Transformation im Mittelstand")
+    
+    serie_style = st.selectbox("Stil der Serie", 
+                              ["Professionell", "Educational", "Thought Leadership", "Storytelling"])
+    
+    if st.button("🚀 Serie generieren (5 Posts)", type="primary", use_container_width=True):
+        if not openai_key:
+            st.error("❌ Bitte OpenAI API Key eingeben!")
+        elif not serie_theme:
+            st.error("❌ Bitte Thema eingeben!")
+        else:
+            progress_bar = st.progress(0)
+            status = st.empty()
+            
+            generated_serie = []
+            
+            for i in range(5):
+                status.text(f"Generiere Post {i+1}/5...")
+                
+                prompt = f"""Erstelle LinkedIn Post {i+1} einer 5-teiligen Serie zum Thema: {serie_theme}
+
+SERIE-KONTEXT:
+- Dies ist Post {i+1} von 5
+- Stil: {serie_style}
+- Zielgruppe: B2B Entscheider im deutschen Mittelstand
+
+POST {i+1} FOKUS:
+{"1. Einführung: Problem Statement" if i==0 else ""}
+{"2. Ursachen & Hintergründe" if i==1 else ""}
+{"3. Lösungsansätze" if i==2 else ""}
+{"4. Praxisbeispiel/Case Study" if i==3 else ""}
+{"5. Zusammenfassung & CTA" if i==4 else ""}
+
+ANFORDERUNGEN:
+- 200-300 Wörter
+- Deutsche Business-Sprache
+- Konkrete Insights
+- Verbinde mit vorherigen Posts
+- Relevante Hashtags
+
+Schreibe NUR den Post-Text."""
+
+                try:
+                    response = openai.chat.completions.create(
+                        model="gpt-4",
+                        messages=[
+                            {"role": "system", "content": "Du bist LinkedIn Content-Experte für B2B im deutschen Mittelstand."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        temperature=0.7,
+                        max_tokens=500
+                    )
+                    
+                    post_text = response.choices[0].message.content.strip()
+                    generated_serie.append({
+                        'nummer': i+1,
+                        'text': post_text
+                    })
+                    
+                    progress_bar.progress((i+1)/5)
+                    time.sleep(1)  # Rate limiting
+                    
+                except Exception as e:
+                    st.error(f"❌ Fehler bei Post {i+1}: {str(e)}")
+                    break
+            
+            if len(generated_serie) == 5:
+                status.text("✅ Serie komplett generiert!")
+                st.session_state['generated_serie'] = generated_serie
+                st.balloons()
+    
+    # Anzeige der generierten Serie
+    if 'generated_serie' in st.session_state:
+        st.markdown("---")
+        st.subheader("📚 Generierte Post-Serie")
+        
+        for post in st.session_state['generated_serie']:
+            with st.expander(f"📄 Post {post['nummer']}/5"):
+                edited_text = st.text_area(
+                    "Post-Text",
+                    value=post['text'],
+                    height=250,
+                    key=f"serie_post_{post['nummer']}"
+                )
+                
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    st.download_button(
+                        "💾 Speichern",
+                        data=edited_text,
+                        file_name=f"linkedin_serie_post{post['nummer']}.txt",
+                        key=f"download_serie_{post['nummer']}"
+                    )
+                with col_b:
+                    if st.button("📤 Posten", key=f"post_serie_{post['nummer']}"):
+                        st.info("LinkedIn API Integration in Entwicklung")
+        
+        if st.button("🗑️ Serie löschen"):
+            del st.session_state['generated_serie']
+            st.rerun()
+
+
+with tab4:
     st.subheader("📅 Content-Kalender")
     
     schedule = calendar.get('schedule', {})
@@ -176,7 +285,7 @@ with tab2:
     else:
         st.info("📅 Keine Scheduling-Informationen verfügbar")
 
-with tab3:
+with tab4:
     st.subheader("📊 Content-Themen Übersicht")
     
     if themes:
