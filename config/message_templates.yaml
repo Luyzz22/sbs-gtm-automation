@@ -1,0 +1,229 @@
+# LinkedIn Outreach Message Templates
+# Basierend auf SBS Deutschland GTM Playbook 2026
+# Personalisierung via GPT-4/Claude mit Variablen
+
+templates:
+  # CFO / Finanzvorstand Template
+  cfo_template:
+    id: "cfo_v1"
+    target_role: ["CFO", "Finanzvorstand", "Leiter Finanzwesen"]
+    
+    subject_variants:
+      - "Rechnungsverarbeitung bei {{company_name}} – 15h/Monat sparen?"
+      - "{{first_name}}, Finanzprozesse automatisieren"
+      - "CFO-Insight: KI für Ihre Buchhaltung"
+    
+    message:
+      opening: |
+        Hallo {{first_name}},
+        
+        ich habe gesehen, dass Sie bei {{company_name}} als {{job_title}} tätig sind.
+      
+      value_proposition: |
+        Viele mittelständische Unternehmen in {{industry}} verschwenden noch immer 15+ Stunden pro Monat mit manueller Rechnungsprüfung.
+        
+        Unsere KI-Lösung automatisiert:
+        • Rechnungserfassung & -prüfung
+        • Compliance-Checks (GoBD-konform)
+        • Automatische Freigabe-Workflows
+      
+      social_proof: |
+        Kunden wie {{competitor_or_similar}} sparen dadurch 60% Zeit in der Kreditorenbuchhaltung.
+      
+      cta: |
+        Würde Sie interessieren, wie das für {{company_name}} aussehen könnte?
+        
+        15-Minuten-Demo diese Woche?
+      
+      signature: |
+        Beste Grüße,
+        {{sender_name}}
+        SBS Deutschland GmbH
+    
+    max_length: 150  # Wörter
+    tone: "professional, results-oriented"
+    
+    personalization_variables:
+      - "company_name"
+      - "first_name"
+      - "job_title"
+      - "industry"
+      - "company_size"
+      - "current_erp_system"  # DATEV, SAP, etc.
+
+  # CTO / IT-Leiter Template  
+  cto_template:
+    id: "cto_v1"
+    target_role: ["CTO", "IT-Leiter", "Head of IT"]
+    
+    subject_variants:
+      - "{{first_name}}, API-Integration für {{current_system}}"
+      - "Technische Lösung: KI-Dokumentenverarbeitung"
+      - "Cloud-native Automatisierung für {{company_name}}"
+    
+    message:
+      opening: |
+        Hallo {{first_name}},
+        
+        als IT-Verantwortlicher bei {{company_name}} kennen Sie vermutlich die Herausforderung:
+      
+      pain_point: |
+        Papierbasierte Prozesse bremsen die Digitalisierung aus.
+        
+        Unsere Plattform bietet:
+        • REST API-Integration zu {{current_system}}
+        • On-Premise oder Cloud-Deployment
+        • DSGVO-konforme Datenverarbeitung (Server in DE)
+      
+      technical_specs: |
+        Tech-Stack:
+        - Python/FastAPI Backend
+        - GPT-4/Claude für Dokumentenanalyse
+        - PostgreSQL + Redis
+        - Docker/Kubernetes-ready
+      
+      cta: |
+        Interesse an einem technischen Deep-Dive?
+        
+        Ich zeige Ihnen gerne unsere API-Dokumentation + Sandbox.
+      
+      signature: |
+        Viele Grüße,
+        {{sender_name}}
+        SBS Deutschland – Tech Team
+    
+    max_length: 180
+    tone: "technical, solution-focused"
+    
+    personalization_variables:
+      - "company_name"
+      - "first_name"
+      - "current_system"
+      - "tech_stack_known"
+      - "cloud_vs_onprem"
+
+  # Geschäftsführer / CEO Template
+  ceo_template:
+    id: "ceo_v1"
+    target_role: ["CEO", "Geschäftsführer", "Managing Director"]
+    
+    subject_variants:
+      - "{{first_name}}, Wachstum bei {{company_name}} skalieren"
+      - "Operative Exzellenz durch KI-Automatisierung"
+      - "ROI-Case: 40% Effizienzgewinn in der Verwaltung"
+    
+    message:
+      opening: |
+        Sehr geehrter Herr/Frau {{last_name}},
+        
+        {{company_name}} wächst – aber administrative Prozesse wachsen oft schneller mit.
+      
+      value_proposition: |
+        Unsere KI-Lösung automatisiert Backoffice-Prozesse:
+        • 60% weniger Zeit für Rechnungsverarbeitung
+        • 40% Kostenreduktion in der Verwaltung
+        • 100% GoBD & DSGVO-Konformität
+      
+      business_case: |
+        Bei einem Unternehmen Ihrer Größe ({{company_size}} MA) rechnet sich die Investition typischerweise in 6-9 Monaten.
+      
+      social_proof: |
+        Referenzen aus dem {{industry}}-Bereich auf Anfrage verfügbar.
+      
+      cta: |
+        Interesse an einem strategischen Gespräch?
+        
+        Gerne zeige ich Ihnen konkrete ROI-Szenarien für {{company_name}}.
+      
+      signature: |
+        Mit freundlichen Grüßen,
+        {{sender_name}}
+        {{sender_title}}
+        SBS Deutschland GmbH
+    
+    max_length: 140
+    tone: "executive, business-focused, ROI-driven"
+    
+    personalization_variables:
+      - "company_name"
+      - "first_name"
+      - "last_name"
+      - "company_size"
+      - "industry"
+      - "estimated_revenue"
+
+# Follow-up Sequenzen
+follow_ups:
+  # Follow-up nach 3 Tagen (keine Antwort)
+  follow_up_1:
+    delay_days: 3
+    message: |
+      Hallo {{first_name}},
+      
+      ich wollte nur kurz nachhaken – hatten Sie Gelegenheit, über meine Nachricht nachzudenken?
+      
+      Falls der Zeitpunkt gerade ungünstig ist: Wann wäre ein besserer Moment für ein kurzes Gespräch?
+      
+      Beste Grüße,
+      {{sender_name}}
+  
+  # Follow-up nach 7 Tagen
+  follow_up_2:
+    delay_days: 7
+    message: |
+      {{first_name}},
+      
+      ich verstehe – Sie haben viel um die Ohren.
+      
+      Lassen Sie mich konkret werden: Ich schicke Ihnen einen 2-Minuten-ROI-Rechner, den Sie selbst ausfüllen können.
+      
+      Interesse? Einfach mit "Ja" antworten.
+      
+      Grüße,
+      {{sender_name}}
+  
+  # Follow-up nach 14 Tagen (letzte Chance)
+  follow_up_3:
+    delay_days: 14
+    message: |
+      Hallo {{first_name}},
+      
+      ich möchte nicht drängeln – dies ist meine letzte Nachricht zu diesem Thema.
+      
+      Falls sich in Zukunft etwas ändert und das Thema Prozessautomatisierung relevant wird, melden Sie sich gerne.
+      
+      Alles Gute für {{company_name}}!
+      
+      {{sender_name}}
+
+# A/B Test Varianten
+ab_testing:
+  enabled: true
+  variants:
+    - variant_id: "short_cta"
+      description: "Kürzere Nachricht, direkter CTA"
+      message_length: "max 100 Wörter"
+    
+    - variant_id: "value_focus"
+      description: "Mehr Fokus auf ROI/Business Value"
+      keywords: ["ROI", "Kostenersparnis", "Effizienz"]
+    
+    - variant_id: "social_proof"
+      description: "Stärkere Betonung von Referenzen"
+      includes_customer_logos: true
+
+# Compliance & Best Practices
+compliance:
+  dsgvo:
+    - "Keine Daten ohne Einwilligung speichern"
+    - "Opt-out Möglichkeit in jeder Nachricht"
+    - "Datenlöschung auf Anfrage"
+  
+  linkedin_policies:
+    - "Max. 20 Nachrichten pro Woche"
+    - "Keine Spam-Wörter (garantiert, kostenlos, etc.)"
+    - "Personalisierung > 50% des Inhalts"
+  
+  response_sla:
+    - "Antwort innerhalb 4h während Geschäftszeiten"
+    - "Automatische Weiterleitung an Sales bei Interesse"

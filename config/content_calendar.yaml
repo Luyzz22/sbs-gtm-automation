@@ -1,0 +1,60 @@
+content_themes:
+- category: Thought Leadership
+  keywords:
+  - Digitalisierung
+  - Mittelstand
+  - Innovation
+  - Industry4.0
+  title: Digital Transformation im Mittelstand
+- category: Technical
+  keywords:
+  - ERP
+  - SAP
+  - Implementation
+  - BestPractices
+  - Maschinenbau
+  title: ERP-Implementierung Best Practices
+- category: Business Case
+  keywords:
+  - CFO
+  - ROI
+  - Kosteneffizienz
+  - Business
+  - Finance
+  title: 'CFO Insights: ROI von ERP-Systemen'
+- category: Technical
+  keywords:
+  - Cloud
+  - OnPremise
+  - Hybrid
+  - Security
+  - Compliance
+  title: Cloud vs. On-Premise ERP
+- category: Case Study
+  keywords:
+  - Success
+  - CaseStudy
+  - Efficiency
+  - Automation
+  - Results
+  title: 'Erfolgsgeschichte: 40% schnellere Prozesse'
+- category: Innovation
+  keywords:
+  - AI
+  - Automation
+  - Manufacturing
+  - SmartFactory
+  - IoT
+  title: KI & Automation in der Fertigung
+schedule:
+  optimal_times:
+  - day: Montag
+    reason: Wochenstart, hohe Aktivität
+    time: 08:30
+  - day: Mittwoch
+    reason: Mittagspause, gute Engagement-Rate
+    time: '12:00'
+  - day: Freitag
+    reason: Wochenabschluss, Zusammenfassungen
+    time: '15:00'
+  posting_frequency: 3x pro Woche

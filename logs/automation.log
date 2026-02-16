@@ -1,0 +1,32 @@
+2026-02-16 14:38:14,832 - INFO - 🚀 Starting Automation Pipeline...
+2026-02-16 14:38:14,834 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-02-16 14:38:14,834 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-02-16 14:38:14,835 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-02-16 14:38:14,835 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-02-16 14:38:14,838 - INFO - Added job "AutomationPipeline.find_leads" to job store "default"
+2026-02-16 14:38:14,839 - INFO - Added job "AutomationPipeline.generate_and_send_emails" to job store "default"
+2026-02-16 14:38:14,839 - INFO - Added job "AutomationPipeline.check_follow_ups" to job store "default"
+2026-02-16 14:38:14,839 - INFO - Added job "AutomationPipeline.generate_report" to job store "default"
+2026-02-16 14:38:14,839 - INFO - Scheduler started
+2026-02-16 14:38:14,840 - INFO - ✓ Automation Pipeline started
+2026-02-16 14:38:14,840 - INFO - Scheduled jobs:
+2026-02-16 14:38:14,840 - INFO -   - follow_up_check: 2026-02-17 09:00:00+01:00
+2026-02-16 14:38:14,840 - INFO -   - lead_generation: 2026-02-19 08:00:00+01:00
+2026-02-16 14:38:14,840 - INFO -   - email_campaign: 2026-02-19 09:00:00+01:00
+2026-02-16 14:38:14,841 - INFO -   - weekly_report: 2026-02-20 17:00:00+01:00
+2026-02-16 14:44:25,063 - INFO - 🚀 Starting Automation Pipeline...
+2026-02-16 14:44:25,063 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-02-16 14:44:25,063 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-02-16 14:44:25,063 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-02-16 14:44:25,063 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-02-16 14:44:25,064 - INFO - Added job "AutomationPipeline.find_leads" to job store "default"
+2026-02-16 14:44:25,064 - INFO - Added job "AutomationPipeline.generate_and_send_emails" to job store "default"
+2026-02-16 14:44:25,064 - INFO - Added job "AutomationPipeline.check_follow_ups" to job store "default"
+2026-02-16 14:44:25,064 - INFO - Added job "AutomationPipeline.generate_report" to job store "default"
+2026-02-16 14:44:25,064 - INFO - Scheduler started
+2026-02-16 14:44:25,064 - INFO - ✓ Automation Pipeline started
+2026-02-16 14:44:25,064 - INFO - Scheduled jobs:
+2026-02-16 14:44:25,064 - INFO -   - follow_up_check: 2026-02-17 09:00:00+01:00
+2026-02-16 14:44:25,064 - INFO -   - lead_generation: 2026-02-19 08:00:00+01:00
+2026-02-16 14:44:25,064 - INFO -   - email_campaign: 2026-02-19 09:00:00+01:00
+2026-02-16 14:44:25,064 - INFO -   - weekly_report: 2026-02-20 17:00:00+01:00

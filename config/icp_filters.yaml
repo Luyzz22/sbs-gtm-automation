@@ -1,0 +1,34 @@
+exclusion_criteria:
+  industries:
+  - Einzelhandel
+  - Gastronomie
+  - Dienstleistung
+  keywords:
+  - Student
+  - Praktikant
+  - Freelancer
+  - Consultant
+target_filters:
+  company_size:
+    max: 1000
+    min: 100
+  industries:
+  - Maschinenbau
+  - Werkzeugbau
+  - Sondermaschinenbau
+  - Automobilzulieferer
+  - Metallverarbeitung
+  - Kunststofftechnik
+  job_titles:
+  - Geschäftsführer
+  - CFO
+  - CTO
+  - IT-Leiter
+  - COO
+  - Produktionsleiter
+  regions:
+  - Baden-Württemberg
+  - Bayern
+  - Nordrhein-Westfalen
+  - Hessen
+  - Niedersachsen
