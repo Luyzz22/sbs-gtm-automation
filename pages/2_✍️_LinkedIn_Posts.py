@@ -2,9 +2,9 @@ import streamlit as st
 import os
 import yaml
 from pathlib import Path
-import openai
-import json
+from openai import OpenAI
 from datetime import datetime
+import time
 
 st.set_page_config(page_title="LinkedIn Posts", page_icon="✍️")
 
@@ -16,7 +16,6 @@ calendar_file = config_path / "content_calendar.yaml"
 
 if not calendar_file.exists():
     st.error("❌ config/content_calendar.yaml nicht gefunden!")
-    st.info("💡 Bitte erstelle die Datei oder führe Setup aus")
     st.stop()
 
 try:
@@ -31,12 +30,14 @@ with st.sidebar:
     st.header("⚙️ Post-Einstellungen")
     
     openai_key = st.text_input("OpenAI API Key", type="password", value=os.getenv('OPENAI_API_KEY', ''))
-    if openai_key:
-        os.environ['OPENAI_API_KEY'] = openai_key
-        openai.api_key = openai_key
     
     tone = st.selectbox("Tonalität", ["Professionell", "Informativ", "Thought Leadership"])
     length = st.slider("Länge (Wörter)", 100, 400, 250)
+
+# Initialize OpenAI Client
+client = None
+if openai_key:
+    client = OpenAI(api_key=openai_key)
 
 # Main Content
 tab1, tab2, tab3, tab4 = st.tabs(["📝 Neuer Post", "📚 Post-Serie", "📅 Content-Kalender", "📊 Posting-Plan"])
@@ -47,8 +48,7 @@ with tab1:
     themes = calendar.get('content_themes', [])
     
     if not themes:
-        st.warning("⚠️ Keine Content-Themen in content_calendar.yaml gefunden!")
-        st.info("Füge Content-Themen in config/content_calendar.yaml hinzu")
+        st.warning("⚠️ Keine Content-Themen gefunden!")
         st.stop()
     
     col1, col2 = st.columns([2, 1])
@@ -59,7 +59,6 @@ with tab1:
         
         if selected_theme:
             theme = theme_options[selected_theme]
-            
             st.info(f"**Kategorie:** {theme.get('category', 'N/A')}")
             st.write(f"**Keywords:** {', '.join(theme.get('keywords', []))}")
     
@@ -73,10 +72,8 @@ with tab1:
                                   placeholder="z.B. Erwähne Fallbeispiel aus Maschinenbau...")
     
     if st.button("✨ Post generieren", type="primary", use_container_width=True):
-        if not openai_key:
+        if not client:
             st.error("❌ Bitte OpenAI API Key eingeben!")
-        elif not selected_theme:
-            st.error("❌ Bitte Content-Thema auswählen!")
         else:
             with st.spinner("🤖 Generiere LinkedIn Post..."):
                 try:
@@ -95,20 +92,19 @@ STIL:
 - Professionell und seriös
 - Thought Leadership im deutschen Mittelstand
 - Konkrete Insights, keine Marketing-Floskeln
-- Deutsche Business-Etikette
 
 STRUKTUR:
 1. Hook (erste Zeile muss fesseln)
-2. Hauptaussage mit konkretem Mehrwert
+2. Hauptaussage mit Mehrwert
 3. Beispiel oder Insights
-4. Call-to-Action (subtil)
+4. Call-to-Action
 5. Relevante Hashtags
 
 {f"ZUSATZ: {custom_prompt}" if custom_prompt else ""}
 
-Schreibe NUR den Post, keine Metakommentare."""
+Schreibe NUR den Post."""
 
-                    response = openai.chat.completions.create(
+                    response = client.chat.completions.create(
                         model="gpt-4",
                         messages=[
                             {"role": "system", "content": "Du bist LinkedIn Content-Experte für B2B Enterprise im deutschen Mittelstand."},
@@ -129,7 +125,6 @@ Schreibe NUR den Post, keine Metakommentare."""
                 except Exception as e:
                     st.error(f"❌ Fehler: {str(e)}")
     
-    # Anzeige generierter Post
     if 'generated_post' in st.session_state:
         st.markdown("---")
         st.subheader("📄 Generierter Post")
@@ -161,7 +156,6 @@ Schreibe NUR den Post, keine Metakommentare."""
                 use_container_width=True
             )
 
-
 with tab2:
     st.subheader("📚 Content-Serie generieren")
     st.info("💡 Erstelle automatisch eine Serie von 5 thematisch verbundenen LinkedIn Posts")
@@ -173,7 +167,7 @@ with tab2:
                               ["Professionell", "Educational", "Thought Leadership", "Storytelling"])
     
     if st.button("🚀 Serie generieren (5 Posts)", type="primary", use_container_width=True):
-        if not openai_key:
+        if not client:
             st.error("❌ Bitte OpenAI API Key eingeben!")
         elif not serie_theme:
             st.error("❌ Bitte Thema eingeben!")
@@ -182,6 +176,14 @@ with tab2:
             status = st.empty()
             
             generated_serie = []
+            
+            post_fokus = [
+                "1. Einführung: Problem Statement",
+                "2. Ursachen & Hintergründe",
+                "3. Lösungsansätze",
+                "4. Praxisbeispiel/Case Study",
+                "5. Zusammenfassung & CTA"
+            ]
             
             for i in range(5):
                 status.text(f"Generiere Post {i+1}/5...")
@@ -194,23 +196,18 @@ SERIE-KONTEXT:
 - Zielgruppe: B2B Entscheider im deutschen Mittelstand
 
 POST {i+1} FOKUS:
-{"1. Einführung: Problem Statement" if i==0 else ""}
-{"2. Ursachen & Hintergründe" if i==1 else ""}
-{"3. Lösungsansätze" if i==2 else ""}
-{"4. Praxisbeispiel/Case Study" if i==3 else ""}
-{"5. Zusammenfassung & CTA" if i==4 else ""}
+{post_fokus[i]}
 
 ANFORDERUNGEN:
 - 200-300 Wörter
 - Deutsche Business-Sprache
 - Konkrete Insights
-- Verbinde mit vorherigen Posts
 - Relevante Hashtags
 
 Schreibe NUR den Post-Text."""
 
                 try:
-                    response = openai.chat.completions.create(
+                    response = client.chat.completions.create(
                         model="gpt-4",
                         messages=[
                             {"role": "system", "content": "Du bist LinkedIn Content-Experte für B2B im deutschen Mittelstand."},
@@ -223,11 +220,12 @@ Schreibe NUR den Post-Text."""
                     post_text = response.choices[0].message.content.strip()
                     generated_serie.append({
                         'nummer': i+1,
-                        'text': post_text
+                        'text': post_text,
+                        'fokus': post_fokus[i]
                     })
                     
                     progress_bar.progress((i+1)/5)
-                    time.sleep(1)  # Rate limiting
+                    time.sleep(2)
                     
                 except Exception as e:
                     st.error(f"❌ Fehler bei Post {i+1}: {str(e)}")
@@ -237,39 +235,40 @@ Schreibe NUR den Post-Text."""
                 status.text("✅ Serie komplett generiert!")
                 st.session_state['generated_serie'] = generated_serie
                 st.balloons()
+                st.rerun()
     
-    # Anzeige der generierten Serie
     if 'generated_serie' in st.session_state:
         st.markdown("---")
         st.subheader("📚 Generierte Post-Serie")
         
         for post in st.session_state['generated_serie']:
-            with st.expander(f"📄 Post {post['nummer']}/5"):
-                edited_text = st.text_area(
+            with st.expander(f"📄 Post {post['nummer']}/5: {post['fokus']}"):
+                st.text_area(
                     "Post-Text",
                     value=post['text'],
                     height=250,
-                    key=f"serie_post_{post['nummer']}"
+                    key=f"serie_post_{post['nummer']}",
+                    disabled=True
                 )
                 
                 col_a, col_b = st.columns(2)
                 with col_a:
                     st.download_button(
                         "💾 Speichern",
-                        data=edited_text,
+                        data=post['text'],
                         file_name=f"linkedin_serie_post{post['nummer']}.txt",
-                        key=f"download_serie_{post['nummer']}"
+                        key=f"download_serie_{post['nummer']}",
+                        use_container_width=True
                     )
                 with col_b:
-                    if st.button("📤 Posten", key=f"post_serie_{post['nummer']}"):
+                    if st.button("📤 Posten", key=f"post_serie_{post['nummer']}", use_container_width=True):
                         st.info("LinkedIn API Integration in Entwicklung")
         
-        if st.button("🗑️ Serie löschen"):
+        if st.button("🗑️ Serie löschen", use_container_width=True):
             del st.session_state['generated_serie']
             st.rerun()
 
-
-with tab4:
+with tab3:
     st.subheader("📅 Content-Kalender")
     
     schedule = calendar.get('schedule', {})
@@ -282,8 +281,6 @@ with tab4:
         for time_slot in schedule.get('optimal_times', []):
             with st.expander(f"**{time_slot.get('day', 'N/A')}** um {time_slot.get('time', 'N/A')}"):
                 st.write(f"**Grund:** {time_slot.get('reason', 'N/A')}")
-    else:
-        st.info("📅 Keine Scheduling-Informationen verfügbar")
 
 with tab4:
     st.subheader("📊 Content-Themen Übersicht")
@@ -302,5 +299,3 @@ with tab4:
                         st.info("Feature in Entwicklung")
                 
                 st.markdown("---")
-    else:
-        st.info("Keine Content-Themen definiert")
