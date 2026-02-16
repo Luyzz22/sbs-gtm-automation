@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import yaml
 from pathlib import Path
-from openai import OpenAI
 from datetime import datetime
 import time
 
@@ -34,10 +33,26 @@ with st.sidebar:
     tone = st.selectbox("Tonalität", ["Professionell", "Informativ", "Thought Leadership"])
     length = st.slider("Länge (Wörter)", 100, 400, 250)
 
-# Initialize OpenAI Client
-client = None
-if openai_key:
+# Helper function for OpenAI calls
+def generate_with_openai(prompt, system_prompt="Du bist LinkedIn Content-Experte."):
+    """Generate content using OpenAI API"""
+    if not openai_key:
+        raise ValueError("API Key fehlt")
+    
+    from openai import OpenAI
     client = OpenAI(api_key=openai_key)
+    
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.8,
+        max_tokens=600
+    )
+    
+    return response.choices[0].message.content.strip()
 
 # Main Content
 tab1, tab2, tab3, tab4 = st.tabs(["📝 Neuer Post", "📚 Post-Serie", "📅 Content-Kalender", "📊 Posting-Plan"])
@@ -72,7 +87,7 @@ with tab1:
                                   placeholder="z.B. Erwähne Fallbeispiel aus Maschinenbau...")
     
     if st.button("✨ Post generieren", type="primary", use_container_width=True):
-        if not client:
+        if not openai_key:
             st.error("❌ Bitte OpenAI API Key eingeben!")
         else:
             with st.spinner("🤖 Generiere LinkedIn Post..."):
@@ -91,30 +106,23 @@ LÄNGE: Ca. {length} Wörter
 STIL:
 - Professionell und seriös
 - Thought Leadership im deutschen Mittelstand
-- Konkrete Insights, keine Marketing-Floskeln
+- Konkrete Insights
 
 STRUKTUR:
-1. Hook (erste Zeile muss fesseln)
+1. Hook
 2. Hauptaussage mit Mehrwert
-3. Beispiel oder Insights
+3. Beispiel
 4. Call-to-Action
-5. Relevante Hashtags
+5. Hashtags
 
 {f"ZUSATZ: {custom_prompt}" if custom_prompt else ""}
 
 Schreibe NUR den Post."""
 
-                    response = client.chat.completions.create(
-                        model="gpt-4",
-                        messages=[
-                            {"role": "system", "content": "Du bist LinkedIn Content-Experte für B2B Enterprise im deutschen Mittelstand."},
-                            {"role": "user", "content": prompt}
-                        ],
-                        temperature=0.8,
-                        max_tokens=600
+                    post_content = generate_with_openai(
+                        prompt, 
+                        "Du bist LinkedIn Content-Experte für B2B Enterprise im deutschen Mittelstand."
                     )
-                    
-                    post_content = response.choices[0].message.content.strip()
                     
                     st.session_state['generated_post'] = post_content
                     st.session_state['post_theme'] = theme['title']
@@ -158,7 +166,7 @@ Schreibe NUR den Post."""
 
 with tab2:
     st.subheader("📚 Content-Serie generieren")
-    st.info("💡 Erstelle automatisch eine Serie von 5 thematisch verbundenen LinkedIn Posts")
+    st.info("💡 Erstelle automatisch eine Serie von 5 LinkedIn Posts")
     
     serie_theme = st.text_input("Hauptthema der Serie", 
                                 placeholder="z.B. Digital Transformation im Mittelstand")
@@ -167,7 +175,7 @@ with tab2:
                               ["Professionell", "Educational", "Thought Leadership", "Storytelling"])
     
     if st.button("🚀 Serie generieren (5 Posts)", type="primary", use_container_width=True):
-        if not client:
+        if not openai_key:
             st.error("❌ Bitte OpenAI API Key eingeben!")
         elif not serie_theme:
             st.error("❌ Bitte Thema eingeben!")
@@ -178,46 +186,31 @@ with tab2:
             generated_serie = []
             
             post_fokus = [
-                "1. Einführung: Problem Statement",
-                "2. Ursachen & Hintergründe",
-                "3. Lösungsansätze",
-                "4. Praxisbeispiel/Case Study",
-                "5. Zusammenfassung & CTA"
+                "Einführung: Problem Statement",
+                "Ursachen & Hintergründe",
+                "Lösungsansätze",
+                "Praxisbeispiel/Case Study",
+                "Zusammenfassung & CTA"
             ]
             
             for i in range(5):
                 status.text(f"Generiere Post {i+1}/5...")
                 
-                prompt = f"""Erstelle LinkedIn Post {i+1} einer 5-teiligen Serie zum Thema: {serie_theme}
+                prompt = f"""Erstelle LinkedIn Post {i+1} einer 5-teiligen Serie: {serie_theme}
 
-SERIE-KONTEXT:
-- Dies ist Post {i+1} von 5
-- Stil: {serie_style}
-- Zielgruppe: B2B Entscheider im deutschen Mittelstand
+FOKUS: {post_fokus[i]}
+STIL: {serie_style}
+LÄNGE: 200-300 Wörter
 
-POST {i+1} FOKUS:
-{post_fokus[i]}
-
-ANFORDERUNGEN:
-- 200-300 Wörter
-- Deutsche Business-Sprache
-- Konkrete Insights
-- Relevante Hashtags
-
-Schreibe NUR den Post-Text."""
+Zielgruppe: B2B Entscheider im deutschen Mittelstand
+Schreibe konkret und praxisnah mit relevanten Hashtags."""
 
                 try:
-                    response = client.chat.completions.create(
-                        model="gpt-4",
-                        messages=[
-                            {"role": "system", "content": "Du bist LinkedIn Content-Experte für B2B im deutschen Mittelstand."},
-                            {"role": "user", "content": prompt}
-                        ],
-                        temperature=0.7,
-                        max_tokens=500
+                    post_text = generate_with_openai(
+                        prompt,
+                        "Du bist LinkedIn Content-Experte für B2B im deutschen Mittelstand."
                     )
                     
-                    post_text = response.choices[0].message.content.strip()
                     generated_serie.append({
                         'nummer': i+1,
                         'text': post_text,
@@ -232,7 +225,7 @@ Schreibe NUR den Post-Text."""
                     break
             
             if len(generated_serie) == 5:
-                status.text("✅ Serie komplett generiert!")
+                status.text("✅ Serie komplett!")
                 st.session_state['generated_serie'] = generated_serie
                 st.balloons()
                 st.rerun()
@@ -256,13 +249,13 @@ Schreibe NUR den Post-Text."""
                     st.download_button(
                         "💾 Speichern",
                         data=post['text'],
-                        file_name=f"linkedin_serie_post{post['nummer']}.txt",
-                        key=f"download_serie_{post['nummer']}",
+                        file_name=f"serie_post{post['nummer']}.txt",
+                        key=f"dl_{post['nummer']}",
                         use_container_width=True
                     )
                 with col_b:
-                    if st.button("📤 Posten", key=f"post_serie_{post['nummer']}", use_container_width=True):
-                        st.info("LinkedIn API Integration in Entwicklung")
+                    if st.button("📤 Posten", key=f"post_{post['nummer']}", use_container_width=True):
+                        st.info("LinkedIn API in Entwicklung")
         
         if st.button("🗑️ Serie löschen", use_container_width=True):
             del st.session_state['generated_serie']
@@ -279,23 +272,22 @@ with tab3:
         st.markdown("### 🕒 Optimale Posting-Zeiten")
         
         for time_slot in schedule.get('optimal_times', []):
-            with st.expander(f"**{time_slot.get('day', 'N/A')}** um {time_slot.get('time', 'N/A')}"):
-                st.write(f"**Grund:** {time_slot.get('reason', 'N/A')}")
+            with st.expander(f"**{time_slot.get('day')}** um {time_slot.get('time')}"):
+                st.write(f"**Grund:** {time_slot.get('reason')}")
 
 with tab4:
     st.subheader("📊 Content-Themen Übersicht")
     
     if themes:
         for i, theme in enumerate(themes, 1):
-            with st.container():
-                col1, col2 = st.columns([3, 1])
-                
-                with col1:
-                    st.markdown(f"**{i}. {theme.get('title', 'Unbekannt')}**")
-                    st.caption(f"Kategorie: {theme.get('category', 'N/A')}")
-                
-                with col2:
-                    if st.button("Nutzen", key=f"use_theme_{i}"):
-                        st.info("Feature in Entwicklung")
-                
-                st.markdown("---")
+            col1, col2 = st.columns([3, 1])
+            
+            with col1:
+                st.markdown(f"**{i}. {theme.get('title')}**")
+                st.caption(f"Kategorie: {theme.get('category')}")
+            
+            with col2:
+                if st.button("Nutzen", key=f"theme_{i}"):
+                    st.info("Feature in Entwicklung")
+            
+            st.markdown("---")
