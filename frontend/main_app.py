@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-SBS GTM Automation - Haupt-Dashboard
+SBS Nexus GTM Automation Hub
+Enterprise Go-to-Market Automatisierung für SBS Deutschland GmbH & Co. KG
 """
 import streamlit as st
 import sys
@@ -9,31 +10,37 @@ import os
 # Path Setup
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+# SBS Corporate Design
+SBS_BLUE = "#003856"
+SBS_YELLOW = "#FFB900"
+SBS_ORANGE = "#F97316"
+
 # Page Config
 st.set_page_config(
-    page_title="SBS GTM Automation Hub",
-    page_icon="🚀",
+    page_title="SBS Nexus – GTM Automation",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # Custom CSS
-st.markdown("""
+st.markdown(f"""
 <style>
-    .main-header {
-        font-size: 3rem;
-        font-weight: bold;
+    .main-header {{
+        font-size: 2.5rem;
+        font-weight: 800;
         text-align: center;
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, {SBS_BLUE} 0%, #005a8c 50%, {SBS_ORANGE} 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        padding: 1rem 0;
-    }
+        padding: 0.5rem 0;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
 # Header
-st.markdown('<h1 class="main-header">🚀 SBS GTM Automation Hub</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-header">⚡ SBS Nexus GTM Automation</h1>', unsafe_allow_html=True)
+st.markdown('<p style="text-align:center; color:#64748b;">Enterprise Go-to-Market · Finance · Contract · Technical Intelligence · DATEV & SAP</p>', unsafe_allow_html=True)
 st.markdown("---")
 
 # Get current page from query params (st.query_params is the correct API)

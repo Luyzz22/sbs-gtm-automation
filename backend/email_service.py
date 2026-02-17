@@ -11,7 +11,7 @@ class EmailService:
     def __init__(self):
         """Initialize mit Streamlit Secrets"""
         self.sender_email = st.secrets.get("SENDER_EMAIL", "")
-        self.sender_name = st.secrets.get("SENDER_NAME", "Luis Schenk")
+        self.sender_name = st.secrets.get("SENDER_NAME", "Luis Orozco")
         self.smtp_server = st.secrets.get("SMTP_SERVER", "smtp.strato.de")
         self.smtp_port = int(st.secrets.get("SMTP_PORT", 465))
         self.smtp_username = st.secrets.get("SMTP_USERNAME", "")

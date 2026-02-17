@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-SBS GTM Email Automation - Vollautomatischer Email-Versand
-Author: Luis Schenk
-Date: 16.02.2026
-Description: Automatisiertes Email-System für B2B Enterprise SaaS Marketing
+SBS Nexus GTM Email Automation
+KI-personalisierte Outreach-Emails für Steuerberater & Kanzleien
+Produkt: SBS Nexus – KI-gestützte Rechnungsverarbeitung mit DATEV-Integration
+Website: https://sbsdeutschland.com/sbshomepage/ | https://www.sbsnexus.de
 """
 
 import os
@@ -21,16 +21,17 @@ import openai
 
 load_dotenv()
 
+
 class SBSEmailAutomation:
-    """Enterprise Email Automation für SBS Deutschland GTM"""
-    
+    """Enterprise Email Automation für SBS Nexus Steuerberater-Outreach"""
+
     def __init__(self, use_resend: bool = True):
         self.use_resend = use_resend
         self.sender_email = os.getenv('SENDER_EMAIL')
-        self.sender_name = os.getenv('SENDER_NAME', 'Luis Schenk')
-        self.sender_title = os.getenv('SENDER_TITLE', 'Board of Directors')
+        self.sender_name = os.getenv('SENDER_NAME', 'Luis Orozco')
+        self.sender_title = os.getenv('SENDER_TITLE', 'Gründer & CEO')
         self.company = os.getenv('COMPANY_NAME', 'SBS Deutschland GmbH')
-        
+
         if use_resend:
             resend.api_key = os.getenv('RESEND_API_KEY')
             print("✓ Resend API initialisiert")
@@ -41,126 +42,157 @@ class SBSEmailAutomation:
             self.smtp_password = os.getenv('SMTP_PASSWORD')
             self.smtp_use_ssl = os.getenv('SMTP_USE_SSL', 'True') == 'True'
             print("✓ Strato SMTP initialisiert")
-    
+
     def load_templates(self) -> Dict:
-        """Lädt Templates aus config/message_templates.yaml"""
         with open('config/message_templates.yaml', 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
-    
+
     def select_template(self, role: str, templates: Dict) -> Dict:
-        """Wählt Template basierend auf Zielrolle"""
         role_lower = role.lower()
-        
-        if any(x in role_lower for x in ['cfo', 'finanz', 'controller']):
-            return templates['templates']['cfo_template']
-        elif any(x in role_lower for x in ['cto', 'it', 'technical']):
-            return templates['templates']['cto_template']
+
+        if any(x in role_lower for x in ['steuerberater', 'kanzleiinhaber', 'partner', 'wirtschaftsprüfer']):
+            return templates['templates']['steuerberater_template']
+        elif any(x in role_lower for x in ['cfo', 'finanz', 'buchhal']):
+            return templates['templates']['kmu_template']
+        elif 'digital' in role_lower:
+            return templates['templates']['digital_kanzlei_template']
         else:
-            return templates['templates']['ceo_template']
-    
+            return templates['templates']['steuerberater_template']
+
     def personalize_message(self, template: Dict, contact: Dict) -> Tuple[str, str]:
-        """Erstellt vollständig personalisierte Email"""
         subject = template['subject_variants'][0]
         msg_parts = template['message']
         sections = []
-        
-        for key in ['opening', 'value_proposition', 'pain_point', 
-                    'technical_specs', 'business_case', 'social_proof', 'cta', 'signature']:
+
+        for key in ['opening', 'value_proposition', 'pain_point', 'differentiator',
+                    'social_proof', 'partnership', 'cta', 'signature']:
             if key in msg_parts:
                 sections.append(msg_parts[key])
-        
+
         body = "\n\n".join(sections)
-        
+
         replacements = {
             'first_name': contact.get('first_name', ''),
             'last_name': contact.get('last_name', ''),
             'job_title': contact.get('job_title', ''),
             'company_name': contact.get('company_name', ''),
-            'industry': contact.get('industry', 'Maschinenbau'),
-            'company_size': str(contact.get('company_size', 100)),
-            'current_system': contact.get('current_system', 'SAP'),
-            'current_erp_system': contact.get('current_erp_system', 'DATEV'),
+            'datev_status': contact.get('datev_status', 'DATEV Mitglied'),
+            'datev_label_count': str(contact.get('datev_label_count', '')),
+            'mandanten_count': str(contact.get('mandanten_count', '80-120')),
+            'team_size': str(contact.get('company_size', '15')),
+            'personalization_hook': contact.get('personalization_hook', f"als {contact.get('job_title', 'Steuerberater')} bei {contact.get('company_name', '')} setzen Sie digitale Maßstäbe."),
             'sender_name': self.sender_name,
             'sender_title': self.sender_title,
-            'competitor_or_similar': contact.get('competitor', 'führende Unternehmen'),
-            'estimated_revenue': contact.get('estimated_revenue', '50M EUR'),
-            'tech_stack_known': contact.get('tech_stack', 'moderne Systeme'),
-            'cloud_vs_onprem': contact.get('deployment', 'Hybrid')
+            'sender_phone': os.getenv('SENDER_PHONE', ''),
+            'calendly_link': os.getenv('CALENDLY_LINK', 'https://calendly.com/sbs-nexus/demo'),
         }
-        
+
         for key, value in replacements.items():
             subject = subject.replace(f"{{{{{key}}}}}", str(value))
             body = body.replace(f"{{{{{key}}}}}", str(value))
-        
+
         return subject, body
-    
-    def generate_ai_email(self, contact: Dict, template_type: str = 'professional') -> Tuple[str, str]:
-        """Generiert personalisierte Email mit OpenAI GPT-4"""
+
+    def generate_ai_email(self, contact: Dict) -> Tuple[str, str]:
+        """Generiert personalisierte SBS Nexus Email mit OpenAI GPT-4"""
         openai.api_key = os.getenv('OPENAI_API_KEY')
-        
-        prompt = f"""Erstelle eine professionelle B2B Cold Email für SBS Deutschland:
+
+        prompt = f"""Erstelle eine professionelle B2B Cold Email für SBS Nexus:
 
 EMPFÄNGER:
-- Name: {contact['first_name']} {contact['last_name']}
-- Position: {contact['job_title']}
-- Unternehmen: {contact['company_name']}
-- Branche: {contact.get('industry', 'Maschinenbau')}
+- Name: {contact.get('first_name', '')} {contact.get('last_name', '')}
+- Position: {contact.get('job_title', 'Steuerberater')}
+- Unternehmen: {contact.get('company_name', '')}
+- Segment: {contact.get('segment', 'Digital-affin')}
+- DATEV-Status: {contact.get('datev_status', 'DATEV Mitglied')}
+
+PERSONALISIERUNG: {contact.get('personalization_hook', 'Digital-affine Kanzlei')}
 
 SENDER:
 - Name: {self.sender_name}
 - Position: {self.sender_title}
-- Unternehmen: {self.company}
+- Unternehmen: SBS Deutschland GmbH
 
-KONTEXT:
-SBS ist führender ERP-Anbieter für deutschen Mittelstand. 
-Branchenspezifische Lösungen mit SAP-Integration.
+PRODUKT - SBS NEXUS:
+- KI-gestützte Rechnungsverarbeitung
+- 8 Sekunden Verarbeitungszeit pro Rechnung
+- 99,2% Erkennungsgenauigkeit
+- Automatischer DATEV-konformer Export
+- Unterstützt: XRechnung, ZUGFeRD, PDF
+- Multimodale KI (nicht regelbasierte OCR)
+- DSGVO-konform, Server in Frankfurt
+- E-Rechnungspflicht 2025 Compliance
 
-STIL: Professionell, konkret, 250-350 Wörter, Deutsche Business-Etikette
+PARTNERPROGRAMM:
+- 15-25% Revenue Share (3 Tiers)
+- Dauerhaft pro vermitteltem Mandant
+- Keine Vorabkosten
+- 14-Tage-Onboarding
+- Details: www.sbsnexus.de/partner
+
+MARKT:
+- 89.000 Steuerberater in Deutschland
+- €21,3 Mrd. Marktvolumen
+- DATEV 90%+ Marktanteil
+- E-Rechnungspflicht seit Januar 2025
+
+STIL:
+- Professionell, konkret, Enterprise-Standard (Apple/SAP Niveau)
+- Deutsche Business-Etikette (Sehr geehrte/r)
+- Max. 250-300 Wörter
+- Personalisierungs-Hook nutzen!
+- Kein generisches Marketing
+- Konkrete Zahlen
 
 STRUKTUR:
-1. Persönliche Ansprache mit Branchenbezug
-2. Konkrete Pain Points
-3. SBS Lösung mit messbaren Vorteilen
-4. Subtiler CTA
-5. Signatur
+1. Persönliche Ansprache mit Bezug auf Kanzlei
+2. Konkretes Pain Point (Rechnungsverarbeitung, E-Rechnung)
+3. SBS Nexus als Lösung mit messbaren Vorteilen
+4. Partnerprogramm erwähnen (Revenue Share)
+5. Subtiler CTA (20-Min Demo)
+6. Professionelle Signatur
 
 Schreibe NUR die Email, keine Metakommentare."""
-        
+
         try:
             response = openai.chat.completions.create(
                 model="gpt-4",
                 messages=[
-                    {"role": "system", "content": "Du bist Experte für deutsche B2B Enterprise Sales Emails im Mittelstand."},
+                    {"role": "system", "content": "Du bist Experte für deutsche B2B Enterprise Sales Emails im Steuerberater-Markt. Du schreibst auf dem Niveau von Apple, SAP und NVIDIA Corporate Communications. Produkt: SBS Nexus KI-Rechnungsverarbeitung."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.7,
                 max_tokens=800
             )
-            
+
             body = response.choices[0].message.content.strip()
-            
-            subject_prompt = f"Erstelle professionellen Email-Betreff für {contact['first_name']} {contact['last_name']} bei {contact['company_name']}. Thema: SBS ERP. Max 60 Zeichen, Deutsch."
-            
+
+            subject_prompt = f"""Erstelle einen professionellen Email-Betreff für:
+- Empfänger: {contact.get('first_name', '')} {contact.get('last_name', '')} bei {contact.get('company_name', '')}
+- Thema: SBS Nexus KI-Rechnungsverarbeitung für Steuerberater
+- Max 60 Zeichen, Deutsch, konkret mit Zahlen
+- Beispiele: "70% weniger Zeitaufwand bei der Rechnungsverarbeitung" oder "8 Sekunden statt 8 Minuten: KI für Ihre Kanzlei"
+Schreibe NUR den Betreff."""
+
             subject_response = openai.chat.completions.create(
                 model="gpt-4",
                 messages=[{"role": "user", "content": subject_prompt}],
                 temperature=0.6,
                 max_tokens=50
             )
-            
-            subject = subject_response.choices[0].message.content.strip()
-            
+
+            subject = subject_response.choices[0].message.content.strip().strip('"')
+
             print(f"   ✓ AI-Email generiert ({len(body)} Zeichen)")
             return subject, body
-            
+
         except Exception as e:
             print(f"   ✗ AI-Fehler: {str(e)}")
             templates = self.load_templates()
-            template = self.select_template(contact.get('role', 'CEO'), templates)
+            template = self.select_template(contact.get('role', 'Steuerberater'), templates)
             return self.personalize_message(template, contact)
-    
+
     def send_via_resend(self, to_email: str, subject: str, body: str) -> bool:
-        """Sendet Email via Resend API"""
         try:
             params: resend.Emails.SendParams = {
                 "from": f"{self.sender_name} <{self.sender_email}>",
@@ -169,29 +201,26 @@ Schreibe NUR die Email, keine Metakommentare."""
                 "html": body.replace('\n', '<br>'),
                 "reply_to": self.sender_email,
             }
-            
             email = resend.Emails.send(params)
             print(f"✓ Email via Resend gesendet an {to_email} (ID: {email['id']})")
             return True
-            
         except Exception as e:
             print(f"✗ Resend Fehler bei {to_email}: {str(e)}")
             return False
-    
+
     def send_via_smtp(self, to_email: str, subject: str, body: str) -> bool:
-        """Sendet Email via Strato SMTP"""
         try:
             msg = MIMEMultipart('alternative')
             msg['From'] = f"{self.sender_name} <{self.sender_email}>"
             msg['To'] = to_email
             msg['Subject'] = subject
             msg['Reply-To'] = self.sender_email
-            
+
             text_part = MIMEText(body, 'plain', 'utf-8')
             html_part = MIMEText(body.replace('\n', '<br>'), 'html', 'utf-8')
             msg.attach(text_part)
             msg.attach(html_part)
-            
+
             if self.smtp_use_ssl:
                 with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port) as server:
                     server.login(self.smtp_username, self.smtp_password)
@@ -201,155 +230,147 @@ Schreibe NUR die Email, keine Metakommentare."""
                     server.starttls()
                     server.login(self.smtp_username, self.smtp_password)
                     server.send_message(msg)
-            
-            print(f"✓ Email via Strato SMTP gesendet an {to_email}")
+
+            print(f"✓ Email via SMTP gesendet an {to_email}")
             return True
-            
         except Exception as e:
             print(f"✗ SMTP Fehler bei {to_email}: {str(e)}")
             return False
-    
+
     def send_email(self, to_email: str, subject: str, body: str) -> bool:
         if self.use_resend:
             return self.send_via_resend(to_email, subject, body)
         else:
             return self.send_via_smtp(to_email, subject, body)
-    
+
     def send_campaign(self, contacts: List[Dict], delay_seconds: int = 120) -> Dict:
-        """Sendet vollautomatische Email-Kampagne"""
         templates = self.load_templates()
-        
         results = {
             'timestamp': datetime.now().isoformat(),
-            'sent': 0,
-            'failed': 0,
-            'total': len(contacts),
+            'sent': 0, 'failed': 0, 'total': len(contacts),
             'details': []
         }
-        
-        print(f"\n🚀 Starte Email-Kampagne für {len(contacts)} Kontakte...")
+
+        print(f"\n🚀 SBS Nexus Email-Kampagne für {len(contacts)} Steuerberater...")
         print(f"📧 Sender: {self.sender_name} <{self.sender_email}>")
-        print(f"⚙️  Methode: {'Resend API' if self.use_resend else 'Strato SMTP'}\n")
-        
+        print(f"⚙️  Methode: {'Resend API' if self.use_resend else 'SMTP'}\n")
+
         for idx, contact in enumerate(contacts, 1):
-            print(f"\n[{idx}/{len(contacts)}] Verarbeite: {contact['email']}")
-            
-            # AI vs Template Toggle
+            print(f"\n[{idx}/{len(contacts)}] {contact.get('company_name', '')} – {contact['email']}")
+
             USE_AI = os.getenv('USE_AI_GENERATION', 'True') == 'True'
-            
+
             if USE_AI and os.getenv('OPENAI_API_KEY'):
-                print(f"   🤖 Generiere AI-Email...")
                 subject, body = self.generate_ai_email(contact)
             else:
-                print(f"   📄 Nutze Template-System...")
-                template = self.select_template(contact.get('role', 'CEO'), templates)
+                template = self.select_template(contact.get('role', 'Steuerberater'), templates)
                 subject, body = self.personalize_message(template, contact)
-            
-            print(f"   Subject: {subject}")
-            print(f"   Template: {template['id']}")
-            
+
             success = self.send_email(contact['email'], subject, body)
-            
-            result_entry = {
+
+            results['details'].append({
                 'email': contact['email'],
-                'company': contact.get('company_name', 'Unknown'),
+                'company': contact.get('company_name', ''),
                 'status': 'sent' if success else 'failed',
-                'timestamp': datetime.now().isoformat(),
-                'template': template['id']
-            }
-            
-            results['details'].append(result_entry)
-            
+                'timestamp': datetime.now().isoformat()
+            })
+
             if success:
                 results['sent'] += 1
             else:
                 results['failed'] += 1
-            
+
             if idx < len(contacts):
                 print(f"   ⏳ Warte {delay_seconds}s...")
                 time.sleep(delay_seconds)
-        
+
         return results
-    
+
     def export_results(self, results: Dict, filename: str = 'campaign_results.csv'):
-        """Exportiert Kampagnen-Ergebnisse"""
         df = pd.DataFrame(results['details'])
         df.to_csv(filename, index=False, encoding='utf-8')
-        print(f"\n📊 Ergebnisse exportiert nach: {filename}")
+        print(f"\n📊 Ergebnisse: {filename}")
 
 
-# Kontaktliste
+# Steuerberater Prio-A Kontaktliste
 TARGET_CONTACTS = [
     {
-        'email': 'max.mustermann@hahn-automation.de',
-        'first_name': 'Max',
-        'last_name': 'Mustermann',
-        'job_title': 'CFO',
-        'role': 'CFO',
-        'company_name': 'Hahn Automation GmbH',
-        'industry': 'Maschinenbau',
-        'company_size': 180,
-        'current_erp_system': 'SAP',
-        'estimated_revenue': '55M EUR',
-        'competitor': 'Precision Tools AG'
+        'email': 'info@stbstaat.de',
+        'first_name': 'Tobias',
+        'last_name': 'Staat',
+        'job_title': 'Steuerberater',
+        'role': 'Steuerberater',
+        'company_name': 'Steuerberater Tobias Staat',
+        'segment': 'Digital-affin',
+        'company_size': 15,
+        'datev_status': 'DATEV UO aktiv',
+        'personalization_hook': 'als mehrfach ausgezeichnete digitale Steuerkanzlei in Weinheim und Heidelberg setzen Sie Maßstäbe. Ihr Ansatz "Steuern gestalten, nicht verwalten" passt perfekt zu unserem Produkt.'
     },
     {
-        'email': 'claudia.meyer@techmach.de',
-        'first_name': 'Claudia',
-        'last_name': 'Meyer',
-        'job_title': 'CFO',
-        'role': 'CFO',
-        'company_name': 'TechMach Industries',
-        'industry': 'Werkzeugmaschinenbau',
-        'company_size': 150,
-        'current_erp_system': 'DATEV',
-        'estimated_revenue': '45M EUR'
+        'email': 'kanzlei@hrsteuer.de',
+        'first_name': '',
+        'last_name': '',
+        'job_title': 'Kanzleiinhaber',
+        'role': 'Steuerberater',
+        'company_name': 'HR Steuerberatung',
+        'segment': 'Digital-affin',
+        'company_size': 10,
+        'datev_status': 'DATEV UO aktiv',
+        'personalization_hook': 'auf Ihrer Website ist mir Ihre Sektion "KI-Tools" aufgefallen – das zeigt, dass Sie Technologie nicht nur nutzen, sondern aktiv vorantreiben.'
     },
     {
-        'email': 'julia.richter@machinevision.de',
-        'first_name': 'Julia',
-        'last_name': 'Richter',
-        'job_title': 'CTO',
-        'role': 'CTO',
-        'company_name': 'MachineVision GmbH',
-        'industry': 'Werkzeugmaschinenbau',
-        'company_size': 120,
-        'current_system': 'SAP',
-        'tech_stack': 'Python, Docker, PostgreSQL',
-        'deployment': 'Cloud-first'
-    }
+        'email': 'kanzlei@steuba.de',
+        'first_name': 'Michael',
+        'last_name': 'Jonas',
+        'job_title': 'Wirtschaftsprüfer',
+        'role': 'Steuerberater',
+        'company_name': 'STEUBA GmbH',
+        'segment': 'Digital-affin',
+        'company_size': 20,
+        'datev_status': 'DATEV UO aktiv + Digitale Kanzlei Label',
+        'personalization_hook': 'Sie setzen bereits auf DATEV Unternehmen Online und beschreiben sich als Steuerberatung mit Hands-on-Mentalität. Genau da setzt SBS Nexus an.'
+    },
+    {
+        'email': 'info@luebeckonline.com',
+        'first_name': '',
+        'last_name': '',
+        'job_title': 'Kanzleiinhaber',
+        'role': 'Steuerberater',
+        'company_name': 'Steuerkanzlei LÜBECK',
+        'segment': 'Digital-affin',
+        'company_size': 10,
+        'datev_status': 'Digitale DATEV-Kanzlei seit 2019',
+        'personalization_hook': 'Ihre Kanzlei trägt das Label Digitale DATEV-Kanzlei seit 2019 – damit gehören Sie zu den absoluten Vorreitern in Frankfurt.'
+    },
 ]
 
 
 if __name__ == "__main__":
-    print("="*60)
-    print("SBS GTM EMAIL AUTOMATION SYSTEM")
-    print(f"Sender: Luis Schenk - Board of Directors")
+    print("=" * 60)
+    print("SBS NEXUS GTM EMAIL AUTOMATION")
+    print(f"Sender: Luis Orozco – Gründer & CEO")
+    print(f"Produkt: SBS Nexus – KI-Rechnungsverarbeitung")
     print(f"Datum: {datetime.now().strftime('%d.%m.%Y %H:%M')}")
-    print("="*60)
-    
+    print("=" * 60)
+
     automation = SBSEmailAutomation(use_resend=True)
-    
-    print(f"\n📋 {len(TARGET_CONTACTS)} Kontakte geladen:")
+
+    print(f"\n📋 {len(TARGET_CONTACTS)} Steuerberater-Kontakte (Prio A):")
     for contact in TARGET_CONTACTS:
-        print(f"   • {contact['company_name']} - {contact['first_name']} {contact['last_name']} ({contact['role']})")
-    
+        print(f"   • {contact['company_name']} – {contact['email']}")
+
     confirm = input(f"\n✓ Kampagne starten? (ja/nein): ").strip().lower()
-    
+
     if confirm in ['ja', 'j', 'yes', 'y']:
-        results = automation.send_campaign(
-            contacts=TARGET_CONTACTS,
-            delay_seconds=120
-        )
-        
-        print("\n" + "="*60)
+        results = automation.send_campaign(contacts=TARGET_CONTACTS, delay_seconds=120)
+
+        print("\n" + "=" * 60)
         print("📊 KAMPAGNEN-ERGEBNIS")
-        print("="*60)
-        print(f"✓ Erfolgreich gesendet: {results['sent']}/{results['total']}")
-        print(f"✗ Fehlgeschlagen: {results['failed']}/{results['total']}")
-        print(f"📅 Timestamp: {results['timestamp']}")
-        
+        print("=" * 60)
+        print(f"✓ Gesendet: {results['sent']}/{results['total']}")
+        print(f"✗ Fehler: {results['failed']}/{results['total']}")
+
         automation.export_results(results)
-        print("\n✅ Kampagne abgeschlossen!")
+        print("\n✅ SBS Nexus Kampagne abgeschlossen!")
     else:
         print("\n❌ Kampagne abgebrochen.")

@@ -4,9 +4,10 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import json
 
-st.set_page_config(page_title="Analytics", page_icon="📊", layout="wide")
+st.set_page_config(page_title="SBS Nexus – Analytics", page_icon="📊", layout="wide")
 
-st.title("📊 Analytics Dashboard")
+st.title("📊 SBS Nexus GTM Analytics")
+st.caption("Kampagnen-Performance für Steuerberater-Outreach & LinkedIn Content")
 
 # Versuche echte Daten zu laden
 results_file = Path("campaign_results.csv")
@@ -73,10 +74,10 @@ with tab1:
         st.info("🔜 Keine Email-Kampagnen Daten verfügbar")
         
         mock_data = pd.DataFrame({
-            'Email': ['max@example.de', 'anna@example.de', 'thomas@example.de'],
-            'Unternehmen': ['TechCorp', 'MachineWorks', 'Precision'],
+            'Email': ['info@stbstaat.de', 'kanzlei@hrsteuer.de', 'kanzlei@steuba.de'],
+            'Unternehmen': ['StB Tobias Staat', 'HR Steuerberatung', 'STEUBA GmbH'],
             'Status': ['✅ Gesendet', '✅ Gesendet', '❌ Fehler'],
-            'Template': ['CEO', 'CTO', 'CFO'],
+            'Template': ['StB Digital-affin', 'StB Digital-affin', 'StB DATEV Label'],
             'Timestamp': [datetime.now() - timedelta(hours=i) for i in range(3)]
         })
         st.dataframe(mock_data, use_container_width=True)
@@ -85,7 +86,7 @@ with tab2:
     st.subheader("📋 Template-Analyse")
     
     template_data = pd.DataFrame({
-        'Template': ['CEO Template', 'CFO Template', 'CTO Template'],
+        'Template': ['StB Digital-affin', 'StB DATEV Label', 'KMU-Entscheider'],
         'Verwendet': [12, 8, 5],
         'Erfolgsquote': ['92%', '88%', '80%']
     })
@@ -108,3 +109,5 @@ if not has_real_data:
     st.caption("💡 **Hinweis:** Dies sind Beispiel-Daten. Starte Email-Kampagnen um echte Analytics zu sehen.")
 else:
     st.caption(f"📊 Daten aktualisiert: {datetime.now().strftime('%d.%m.%Y %H:%M')}")
+
+st.caption("SBS Deutschland GmbH & Co. KG · Finance · Contract · Technical Intelligence · sbsnexus.de")

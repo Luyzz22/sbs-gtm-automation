@@ -1,229 +1,216 @@
-# LinkedIn Outreach Message Templates
-# Basierend auf SBS Deutschland GTM Playbook 2026
-# Personalisierung via GPT-4/Claude mit Variablen
+# SBS Nexus - Email & LinkedIn Outreach Templates
+# Zielgruppe: Steuerberater & Steuerkanzleien
+# Produkt: KI-gestützte Rechnungsverarbeitung mit DATEV-Integration
+# Website: https://sbsdeutschland.com/sbshomepage/ | https://www.sbsnexus.de
 
 templates:
-  # CFO / Finanzvorstand Template
-  cfo_template:
-    id: "cfo_v1"
-    target_role: ["CFO", "Finanzvorstand", "Leiter Finanzwesen"]
-    
+  # Steuerberater / Kanzleiinhaber Template (Primär)
+  steuerberater_template:
+    id: "stb_v1"
+    target_role: ["Steuerberater", "Kanzleiinhaber", "Partner", "Geschäftsführer"]
+
     subject_variants:
-      - "Rechnungsverarbeitung bei {{company_name}} – 15h/Monat sparen?"
-      - "{{first_name}}, Finanzprozesse automatisieren"
-      - "CFO-Insight: KI für Ihre Buchhaltung"
-    
+      - "70% weniger Zeitaufwand bei der Rechnungsverarbeitung – für {{company_name}}"
+      - "{{first_name}}, E-Rechnungen in 8 Sekunden verarbeiten?"
+      - "KI-Rechnungsverarbeitung für {{company_name}} – DATEV-konform"
+      - "Digitale DATEV-Kanzlei + KI = Wettbewerbsvorteil für {{company_name}}"
+
+    message:
+      opening: |
+        Sehr geehrte(r) {{first_name}} {{last_name}},
+
+        Ihre Kanzlei ist mir aufgefallen – {{personalization_hook}}
+      
+      value_proposition: |
+        Genau dort setzt SBS Nexus an: Unsere KI-gestützte Rechnungsverarbeitung erkennt Rechnungsdaten in 8 Sekunden mit 99,2% Genauigkeit – und exportiert direkt DATEV-konform.
+
+        Kanzleien, die bereits digital arbeiten, erzielen damit bis zu 70% Zeitersparnis bei der Belegverarbeitung. Für Ihre Mandanten bedeutet das: Schnellere Bearbeitung, weniger Rückfragen, höhere Zufriedenheit.
+      
+      social_proof: |
+        Seit der E-Rechnungspflicht im Januar 2025 verarbeiten unsere Partner-Kanzleien XRechnung und ZUGFeRD vollautomatisch – ohne zusätzlichen Aufwand.
+      
+      partnership: |
+        Als Partner-Kanzlei erhalten Sie 15-25% Revenue Share auf jeden Mandanten, der SBS Nexus nutzt – dauerhaft, ohne Vorabkosten. Details: www.sbsnexus.de/partner
+      
+      cta: |
+        Haben Sie 20 Minuten für eine Live-Demo? Ich zeige Ihnen, wie das konkret für {{company_name}} aussieht.
+
+        Termin buchen: {{calendly_link}}
+      
+      signature: |
+        Mit besten Grüßen,
+        {{sender_name}}
+        Gründer & CEO, SBS Deutschland GmbH
+        {{sender_phone}}
+        www.sbsnexus.de
+
+    max_length: 250
+    tone: "professional, konkret, wertorientiert"
+
+    personalization_variables:
+      - "company_name"
+      - "first_name"
+      - "last_name"
+      - "personalization_hook"
+      - "datev_status"
+      - "mandanten_count"
+      - "calendly_link"
+
+  # Digital-affine Kanzlei Template (für DATEV Label-Träger)
+  digital_kanzlei_template:
+    id: "digital_v1"
+    target_role: ["Steuerberater", "Kanzleiinhaber"]
+    qualifier: "Digitale DATEV-Kanzlei Label"
+
+    subject_variants:
+      - "Digitale DATEV-Kanzlei + KI: Der nächste Schritt für {{company_name}}"
+      - "{{datev_label_count}}x Digitale Kanzlei – bereit für KI, {{first_name}}?"
+      - "SBS Nexus erweitert Ihre DATEV-Prozesse mit KI"
+
+    message:
+      opening: |
+        Sehr geehrte(r) {{first_name}} {{last_name}},
+
+        {{datev_label_count}} Mal als Digitale DATEV-Kanzlei ausgezeichnet – das zeigt eine konsequente Haltung zur Digitalisierung, die im Markt selten ist.
+      
+      value_proposition: |
+        Mit SBS Nexus bieten wir den nächsten logischen Schritt: KI-gestützte Rechnungsverarbeitung, die Ihre bestehenden DATEV-Prozesse nicht ersetzt, sondern erweitert.
+
+        • 99,2% Erkennungsgenauigkeit bei XRechnung, ZUGFeRD & PDF
+        • Automatischer DATEV-Export in 8 Sekunden
+        • Multimodale KI – auch bei komplexen Layouts und internationalen Rechnungen
+      
+      differentiator: |
+        Was uns von regelbasierter OCR unterscheidet: Echte multimodale KI versteht den Kontext einer Rechnung, nicht nur einzelne Felder. Das bedeutet zuverlässige Ergebnisse auch bei Sonderfällen.
+      
+      partnership: |
+        Als Partner-Kanzlei erhalten Sie 15-25% Revenue Share und einen Technologie-Vorsprung, den Ihre Mandanten spüren.
+      
+      cta: |
+        Haben Sie 20 Minuten für eine Live-Demo?
+
+        Termin: {{calendly_link}}
+      
+      signature: |
+        Mit besten Grüßen,
+        {{sender_name}}
+        Gründer & CEO, SBS Deutschland GmbH
+        www.sbsnexus.de
+
+    max_length: 280
+    tone: "respektvoll, tech-affin, zukunftsorientiert"
+
+  # KMU-Entscheider Template (Sekundärzielgruppe)
+  kmu_template:
+    id: "kmu_v1"
+    target_role: ["CFO", "Geschäftsführer", "Leiter Finanzbuchhaltung"]
+
+    subject_variants:
+      - "{{first_name}}, E-Rechnungen automatisch verarbeiten?"
+      - "Rechnungsverarbeitung bei {{company_name}} – 70% schneller mit KI"
+      - "E-Rechnungspflicht 2025: So automatisiert {{company_name}} den Prozess"
+
     message:
       opening: |
         Hallo {{first_name}},
-        
-        ich habe gesehen, dass Sie bei {{company_name}} als {{job_title}} tätig sind.
+
+        seit Januar 2025 ist die E-Rechnung für B2B-Transaktionen Pflicht. Viele Unternehmen wie {{company_name}} stehen vor der Frage: Wie verarbeiten wir XRechnung und ZUGFeRD effizient?
       
       value_proposition: |
-        Viele mittelständische Unternehmen in {{industry}} verschwenden noch immer 15+ Stunden pro Monat mit manueller Rechnungsprüfung.
-        
-        Unsere KI-Lösung automatisiert:
-        • Rechnungserfassung & -prüfung
-        • Compliance-Checks (GoBD-konform)
-        • Automatische Freigabe-Workflows
-      
-      social_proof: |
-        Kunden wie {{competitor_or_similar}} sparen dadurch 60% Zeit in der Kreditorenbuchhaltung.
+        SBS Nexus macht genau das – automatisch:
+        • Rechnung hochladen (PDF, XRechnung, ZUGFeRD)
+        • KI erkennt alle relevanten Felder in 8 Sekunden
+        • DATEV-konformer Export mit einem Klick
+        • 99,2% Erkennungsgenauigkeit
+
+        Für Ihr Finanzteam bedeutet das: 70% weniger manuelle Arbeit bei gleichzeitig höherer Qualität.
       
       cta: |
-        Würde Sie interessieren, wie das für {{company_name}} aussehen könnte?
-        
-        15-Minuten-Demo diese Woche?
+        Interesse an einer 15-Minuten-Demo für {{company_name}}?
+
+        Termin: {{calendly_link}}
       
       signature: |
         Beste Grüße,
         {{sender_name}}
         SBS Deutschland GmbH
-    
-    max_length: 150  # Wörter
-    tone: "professional, results-oriented"
-    
-    personalization_variables:
-      - "company_name"
-      - "first_name"
-      - "job_title"
-      - "industry"
-      - "company_size"
-      - "current_erp_system"  # DATEV, SAP, etc.
+        www.sbsnexus.de
 
-  # CTO / IT-Leiter Template  
-  cto_template:
-    id: "cto_v1"
-    target_role: ["CTO", "IT-Leiter", "Head of IT"]
-    
-    subject_variants:
-      - "{{first_name}}, API-Integration für {{current_system}}"
-      - "Technische Lösung: KI-Dokumentenverarbeitung"
-      - "Cloud-native Automatisierung für {{company_name}}"
-    
-    message:
-      opening: |
-        Hallo {{first_name}},
-        
-        als IT-Verantwortlicher bei {{company_name}} kennen Sie vermutlich die Herausforderung:
-      
-      pain_point: |
-        Papierbasierte Prozesse bremsen die Digitalisierung aus.
-        
-        Unsere Plattform bietet:
-        • REST API-Integration zu {{current_system}}
-        • On-Premise oder Cloud-Deployment
-        • DSGVO-konforme Datenverarbeitung (Server in DE)
-      
-      technical_specs: |
-        Tech-Stack:
-        - Python/FastAPI Backend
-        - GPT-4/Claude für Dokumentenanalyse
-        - PostgreSQL + Redis
-        - Docker/Kubernetes-ready
-      
-      cta: |
-        Interesse an einem technischen Deep-Dive?
-        
-        Ich zeige Ihnen gerne unsere API-Dokumentation + Sandbox.
-      
-      signature: |
-        Viele Grüße,
-        {{sender_name}}
-        SBS Deutschland – Tech Team
-    
-    max_length: 180
-    tone: "technical, solution-focused"
-    
-    personalization_variables:
-      - "company_name"
-      - "first_name"
-      - "current_system"
-      - "tech_stack_known"
-      - "cloud_vs_onprem"
-
-  # Geschäftsführer / CEO Template
-  ceo_template:
-    id: "ceo_v1"
-    target_role: ["CEO", "Geschäftsführer", "Managing Director"]
-    
-    subject_variants:
-      - "{{first_name}}, Wachstum bei {{company_name}} skalieren"
-      - "Operative Exzellenz durch KI-Automatisierung"
-      - "ROI-Case: 40% Effizienzgewinn in der Verwaltung"
-    
-    message:
-      opening: |
-        Sehr geehrter Herr/Frau {{last_name}},
-        
-        {{company_name}} wächst – aber administrative Prozesse wachsen oft schneller mit.
-      
-      value_proposition: |
-        Unsere KI-Lösung automatisiert Backoffice-Prozesse:
-        • 60% weniger Zeit für Rechnungsverarbeitung
-        • 40% Kostenreduktion in der Verwaltung
-        • 100% GoBD & DSGVO-Konformität
-      
-      business_case: |
-        Bei einem Unternehmen Ihrer Größe ({{company_size}} MA) rechnet sich die Investition typischerweise in 6-9 Monaten.
-      
-      social_proof: |
-        Referenzen aus dem {{industry}}-Bereich auf Anfrage verfügbar.
-      
-      cta: |
-        Interesse an einem strategischen Gespräch?
-        
-        Gerne zeige ich Ihnen konkrete ROI-Szenarien für {{company_name}}.
-      
-      signature: |
-        Mit freundlichen Grüßen,
-        {{sender_name}}
-        {{sender_title}}
-        SBS Deutschland GmbH
-    
-    max_length: 140
-    tone: "executive, business-focused, ROI-driven"
-    
-    personalization_variables:
-      - "company_name"
-      - "first_name"
-      - "last_name"
-      - "company_size"
-      - "industry"
-      - "estimated_revenue"
+    max_length: 200
+    tone: "direkt, lösungsorientiert, konkret"
 
 # Follow-up Sequenzen
 follow_ups:
-  # Follow-up nach 3 Tagen (keine Antwort)
   follow_up_1:
     delay_days: 3
+    subject_prefix: "Re:"
     message: |
-      Hallo {{first_name}},
-      
-      ich wollte nur kurz nachhaken – hatten Sie Gelegenheit, über meine Nachricht nachzudenken?
-      
-      Falls der Zeitpunkt gerade ungünstig ist: Wann wäre ein besserer Moment für ein kurzes Gespräch?
-      
-      Beste Grüße,
+      {{first_name}},
+
+      kurze Ergänzung zu meiner Nachricht: Ich habe eine ROI-Berechnung für Kanzleien Ihrer Größenordnung erstellt.
+
+      Für eine Kanzlei mit ca. {{team_size}} Mitarbeitern ergibt sich ein jährlicher Gesamtnutzen von über €82.000 – aufgeteilt in Zeitersparnis, Fehlerreduktion und zusätzliche Partner-Einnahmen.
+
+      Die vollständige Infografik: www.sbsnexus.de/partner
+
+      Kein Pitch, nur Zahlen – die sprechen für sich.
+
       {{sender_name}}
-  
-  # Follow-up nach 7 Tagen
+
   follow_up_2:
     delay_days: 7
     message: |
       {{first_name}},
-      
-      ich verstehe – Sie haben viel um die Ohren.
-      
-      Lassen Sie mich konkret werden: Ich schicke Ihnen einen 2-Minuten-ROI-Rechner, den Sie selbst ausfüllen können.
-      
-      Interesse? Einfach mit "Ja" antworten.
-      
-      Grüße,
+
+      letzte Nachricht von mir zu diesem Thema – versprochen.
+
+      Seit der E-Rechnungspflicht verarbeiten unsere Partner-Kanzleien XRechnung und ZUGFeRD vollautomatisch: Rechnung hochladen → KI erkennt alle Felder → DATEV-Export in 8 Sekunden.
+
+      Was Sie als Partner zusätzlich erhalten: 15-25% Revenue Share auf jeden vermittelten Mandanten – dauerhaft. Keine Vorabkosten, keine Verpflichtungen.
+
+      Falls gerade nicht passt – kein Problem. Aber wenn Sie neugierig sind: {{calendly_link}}
+
       {{sender_name}}
-  
-  # Follow-up nach 14 Tagen (letzte Chance)
+
   follow_up_3:
     delay_days: 14
     message: |
-      Hallo {{first_name}},
-      
-      ich möchte nicht drängeln – dies ist meine letzte Nachricht zu diesem Thema.
-      
-      Falls sich in Zukunft etwas ändert und das Thema Prozessautomatisierung relevant wird, melden Sie sich gerne.
-      
-      Alles Gute für {{company_name}}!
-      
+      {{first_name}},
+
+      ich schließe diesen Thread – falls sich in Zukunft etwas ändert und KI-Rechnungsverarbeitung für {{company_name}} relevant wird, melden Sie sich gerne.
+
+      Alle Infos: www.sbsnexus.de
+
+      Alles Gute,
       {{sender_name}}
 
-# A/B Test Varianten
+# A/B Testing
 ab_testing:
   enabled: true
   variants:
-    - variant_id: "short_cta"
-      description: "Kürzere Nachricht, direkter CTA"
-      message_length: "max 100 Wörter"
-    
-    - variant_id: "value_focus"
-      description: "Mehr Fokus auf ROI/Business Value"
-      keywords: ["ROI", "Kostenersparnis", "Effizienz"]
-    
-    - variant_id: "social_proof"
-      description: "Stärkere Betonung von Referenzen"
-      includes_customer_logos: true
+    - variant_id: "roi_focus"
+      description: "ROI-Zahlen im Betreff (€82K Nutzen)"
+      subject: "€82.464 jährlicher Nutzen für {{company_name}} – so geht's"
+    - variant_id: "speed_focus"
+      description: "Geschwindigkeit im Fokus (8 Sekunden)"
+      subject: "8 Sekunden statt 8 Minuten: Rechnungsverarbeitung für {{company_name}}"
+    - variant_id: "compliance_focus"
+      description: "E-Rechnungspflicht als Trigger"
+      subject: "E-Rechnungspflicht 2025: Automatische Lösung für {{company_name}}"
 
-# Compliance & Best Practices
+# Compliance
 compliance:
   dsgvo:
-    - "Keine Daten ohne Einwilligung speichern"
-    - "Opt-out Möglichkeit in jeder Nachricht"
-    - "Datenlöschung auf Anfrage"
-  
-  linkedin_policies:
-    - "Max. 20 Nachrichten pro Woche"
-    - "Keine Spam-Wörter (garantiert, kostenlos, etc.)"
+    - "Opt-out in jeder E-Mail: 'Antworten Sie mit STOP'"
+    - "Keine Daten ohne Rechtsgrundlage speichern"
+    - "Datenlöschung auf Anfrage innerhalb 72h"
+    - "Server in Frankfurt, DE"
+  email_policies:
+    - "Max. 3 E-Mails pro Sequenz"
+    - "Mindestens 3 Tage zwischen E-Mails"
     - "Personalisierung > 50% des Inhalts"
-  
-  response_sla:
-    - "Antwort innerhalb 4h während Geschäftszeiten"
-    - "Automatische Weiterleitung an Sales bei Interesse"
+    - "Klarer Absender: SBS Deutschland GmbH"
+  linkedin_policies:
+    - "Max. 20 Verbindungsanfragen pro Woche"
+    - "Personalisierte Nachrichten"
+    - "Keine Spam-Wörter"

@@ -3,9 +3,10 @@ import os
 from pathlib import Path
 import yaml
 
-st.set_page_config(page_title="Einstellungen", page_icon="⚙️")
+st.set_page_config(page_title="SBS Nexus – Einstellungen", page_icon="⚙️")
 
-st.title("⚙️ Einstellungen")
+st.title("⚙️ SBS Nexus Einstellungen")
+st.caption("API Keys, Konfiguration & System-Status")
 
 tab1, tab2, tab3 = st.tabs(["🔑 API Keys", "📋 Konfiguration", "🔧 System-Status"])
 

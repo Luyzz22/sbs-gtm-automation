@@ -1,34 +1,104 @@
-exclusion_criteria:
-  industries:
-  - Einzelhandel
-  - Gastronomie
-  - Dienstleistung
-  keywords:
-  - Student
-  - Praktikant
-  - Freelancer
-  - Consultant
+# SBS Nexus - Ideal Customer Profile (ICP)
+# Fokus: Steuerberater & Steuerkanzleien im DACH-Markt
+# Produkt: KI-gestützte Rechnungsverarbeitung mit DATEV-Integration
+
 target_filters:
-  company_size:
-    max: 1000
-    min: 100
-  industries:
-  - Maschinenbau
-  - Werkzeugbau
-  - Sondermaschinenbau
-  - Automobilzulieferer
-  - Metallverarbeitung
-  - Kunststofftechnik
+  company_types:
+    - Steuerkanzlei
+    - Steuerberatungsgesellschaft
+    - Wirtschaftsprüfungsgesellschaft
+    - Buchführungsbüro
+
   job_titles:
-  - Geschäftsführer
-  - CFO
-  - CTO
-  - IT-Leiter
-  - COO
-  - Produktionsleiter
+    - Steuerberater
+    - Kanzleiinhaber
+    - Geschäftsführer
+    - Wirtschaftsprüfer
+    - Partner
+    - Kanzleimanager
+    - Digitalisierungsbeauftragter
+
+  company_size:
+    min: 3
+    max: 200
+
+  mandanten_anzahl:
+    min: 30
+    max: 500
+
+  digital_signals:
+    strong:
+      - "Digitale DATEV-Kanzlei Label"
+      - "DATEV Unternehmen Online aktiv"
+      - "KI-Tools auf Website erwähnt"
+      - "Papierloses Büro"
+    medium:
+      - "DATEV Mitglied"
+      - "Digitale Buchhaltung"
+      - "Online-Mandantenportal"
+
+  specializations:
+    - E-Commerce / Onlinehandel
+    - Startups / Gründerberatung
+    - Immobilien / Vermögensverwaltung
+    - KMU / Mittelstand
+    - Digitalbranche / IT
+
   regions:
-  - Baden-Württemberg
-  - Bayern
-  - Nordrhein-Westfalen
-  - Hessen
-  - Niedersachsen
+    tier_1:
+      - Rhein-Neckar (Weinheim, Mannheim, Heidelberg)
+    tier_2:
+      - Frankfurt / Rhein-Main
+      - Stuttgart / Baden-Württemberg
+      - Köln / NRW
+    tier_3:
+      - Hamburg
+      - München / Bayern
+      - Berlin
+
+  datev_status:
+    priority_high:
+      - "DATEV Unternehmen Online aktiv"
+      - "Digitale DATEV-Kanzlei Label"
+    priority_medium:
+      - "DATEV Mitglied"
+    priority_low:
+      - "Andere Systeme (Agenda, Addison)"
+
+secondary_targets:
+  job_titles:
+    - CFO
+    - Geschäftsführer
+    - Leiter Finanzbuchhaltung
+  company_size:
+    min: 10
+    max: 500
+  industries:
+    - E-Commerce
+    - Handwerk
+    - Dienstleistung
+    - IT / Software
+
+exclusion_criteria:
+  keywords:
+    - Student
+    - Praktikant
+    - Auszubildender
+  company_types:
+    - Lohnsteuerhilfeverein
+    - "Bereits SBS Nexus Partner"
+
+lead_scoring:
+  digitale_datev_kanzlei_label: 30
+  datev_uo_aktiv: 20
+  ki_tools_erwaehnt: 25
+  website_modern: 10
+  mehrere_standorte: 10
+  spezialisierung_ecommerce: 15
+  region_heimatmarkt: 20
+  groesse_10_plus: 10
+  groesse_50_plus: 15
+  thresholds:
+    hot: 60
+    warm: 35
+    cold: 15

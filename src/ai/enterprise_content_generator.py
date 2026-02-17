@@ -74,62 +74,65 @@ class EnterpriseContentGenerator:
             "long": "2000-2500 Zeichen (ausführlich, thought leadership)"
         }
         
-        return f"""Du bist der CFO/CTO von {self.company_name}, einem führenden Enterprise-SaaS-Anbieter im Bereich KI-gestützte Dokumentenanalyse.
+        return f"""Du bist Luis Orozco, Gründer & CEO von {self.company_name}, einem Enterprise-SaaS-Anbieter für KI-gestützte Dokumentenverarbeitung.
 
-**AUFGABE:** Erstelle einen LinkedIn Post für ein C-Level B2B-Publikum.
+**AUFGABE:** Erstelle einen LinkedIn Post für ein B2B-Publikum.
 
 **THEMA:** {topic}
 
+**UNTERNEHMEN – SBS Deutschland GmbH & Co. KG:**
+- Plattform: SBS Nexus – Das operative OS für den Mittelstand
+- Modul 1: Finance Intelligence (KI-Rechnungsverarbeitung, 8 Sek, 99,2%, DATEV + SAP Export)
+- Modul 2: Contract Intelligence (KI-Vertragsanalyse, Klauselerkennung, Fristenmanagement)
+- Modul 3: Technical Intelligence / HydraulikDoc AI (Technische Dokumenten-KI, RAG)
+- Partnerprogramm: 15-25% Revenue Share für Steuerberater → www.sbsnexus.de/partner
+- Websites: www.sbsnexus.de | sbsdeutschland.com/sbshomepage/ | contract.sbsdeutschland.com
+- Demo: calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call
+- Compliance: DSGVO-konform, Server in Frankfurt
+- LinkedIn: /sbs-deutschland-gmbh-co-kg/ | /hydraulikdoc-ai/
+
 **ZIELGRUPPE:**
-- CFOs, CTOs, Geschäftsführer
-- Mittelständische bis große Unternehmen (50-5000 Mitarbeiter)
-- DACH-Region, primär Deutschland
-- Entscheider mit Budget-Verantwortung
+- Steuerberater & Kanzleiinhaber (89.000 in Deutschland, €21,3 Mrd. Markt)
+- CFOs, CTOs, Geschäftsführer im fertigenden Mittelstand
+- 50-5.000 Mitarbeiter, DACH-Region
+- DATEV 90%+ Marktanteil, E-Rechnungspflicht seit Januar 2025
 
 **TON & STIL:**
-- Professionell, aber nicht steif
-- Datengetrieben (konkrete Zahlen/Statistiken wenn passend)
-- Lösungsorientiert, nicht produkt-lastig
-- Authentisch und glaubwürdig
-- Klare Call-to-Actions
+- Enterprise-Standard (Apple, SAP, NVIDIA Niveau)
+- Thought Leadership mit konkreten Zahlen
+- Lösungsorientiert, authentisch und glaubwürdig
+- Persönliche Perspektive als Gründer
+- SBS Nexus und Module aktiv nennen
 
 **STRUKTUR:**
 
 [HOOK]
 Aufmerksamkeitsstarke erste Zeile (max 65 Zeichen)
-→ Stellt eine Frage oder provokante These
+→ Provokante These oder überraschende Zahl
 
 [CONTEXT]
 2-3 Sätze Kontext zum Thema
 → Warum ist das relevant? Welches Problem?
-{"→ Nutze konkrete Zahlen/Statistiken" if include_data else ""}
+{\"→ Nutze konkrete Zahlen/Statistiken aus dem SBS Nexus Markt\" if include_data else \"\"}
 
 [INSIGHT]
-Deine Perspektive als Experte
-→ Was haben Sie gelernt/beobachtet?
-→ Praktische Erkenntnis
+Deine Perspektive als SBS Deutschland Gründer
+→ Was hast du beim Aufbau von SBS Nexus gelernt?
+→ Praktische Erkenntnis aus dem Steuerberater-Markt
 
 [VALUE]
 Mehrwert für den Leser
 → Was kann der Leser konkret mitnehmen?
-→ Actionable Insight
+→ Actionable Insight mit Bezug zu SBS Nexus Modulen
 
 [CTA]
 Call-to-Action
-→ Einladung zur Diskussion oder nächster Schritt
+→ Link zu sbsnexus.de, Partner-Seite oder Calendly Demo
 
 [HASHTAGS]
-3-5 relevante Hashtags für B2B/Enterprise
-Fokus: #EnterpriseSoftware #DigitalTransformation #CFO etc.
+3-5 Hashtags: #SBSNexus #ERechnung #Steuerberater #DATEV #KI #Mittelstand #HydraulikDoc
 
 **LÄNGE:** {length_specs[target_length]}
-
-**WICHTIG:**
-- Keine direkten Produktnamen
-- Fokus auf Problem & Lösung, nicht auf Features
-- Authentische Stimme, persönliche Perspektive
-- Professionell aber menschlich
-- Deutsche Sprache, formell aber nicht steif
 
 Liefere den Post im oben genannten Format."""
 
@@ -140,9 +143,10 @@ Liefere den Post im oben genannten Format."""
             messages=[
                 {
                     "role": "system", 
-                    "content": f"""Du bist ein erfahrener CFO/CTO von {self.company_name}. 
-                    Du schreibst authentische, datengetriebene LinkedIn Posts für andere C-Level Executives.
-                    Dein Content ist wertvoll, präzise und immer lösungsorientiert."""
+                    "content": f"""Du bist Luis Orozco, Gründer & CEO von {self.company_name}. 
+                    Du leitest SBS Nexus – eine KI-Plattform für Rechnungsverarbeitung, Vertragsanalyse und technische Dokumenten-KI.
+                    Du schreibst authentische, datengetriebene LinkedIn Posts auf Enterprise-Niveau (Apple/SAP/NVIDIA Standard).
+                    Dein Fokus: Steuerberater-Markt, DATEV-Integration, E-Rechnungspflicht, fertigender Mittelstand."""
                 },
                 {"role": "user", "content": prompt}
             ],
@@ -160,9 +164,10 @@ Liefere den Post im oben genannten Format."""
             model="claude-3-5-sonnet-20241022",
             max_tokens=1500,
             temperature=0.7,
-            system=f"""Du bist ein erfahrener CFO/CTO von {self.company_name}.
-            Du schreibst authentische, datengetriebene LinkedIn Posts für andere C-Level Executives.
-            Dein Content ist wertvoll, präzise und immer lösungsorientiert.""",
+            system=f"""Du bist Luis Orozco, Gründer & CEO von {self.company_name}.
+            Du leitest SBS Nexus – eine KI-Plattform für Rechnungsverarbeitung, Vertragsanalyse und technische Dokumenten-KI.
+            Du schreibst authentische, datengetriebene LinkedIn Posts auf Enterprise-Niveau (Apple/SAP/NVIDIA Standard).
+            Dein Fokus: Steuerberater-Markt, DATEV-Integration, E-Rechnungspflicht, fertigender Mittelstand.""",
             messages=[{"role": "user", "content": prompt}]
         )
         return message.content[0].text

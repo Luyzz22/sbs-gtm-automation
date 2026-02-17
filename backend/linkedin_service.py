@@ -8,7 +8,7 @@ class LinkedInService:
     def __init__(self):
         """Initialize LinkedIn Service"""
         self.openai_api_key = st.secrets.get("OPENAI_API_KEY", "")
-        self.sender_name = st.secrets.get("SENDER_NAME", "Luis Schenk")
+        self.sender_name = st.secrets.get("SENDER_NAME", "Luis Orozco")
         self.company = st.secrets.get("COMPANY_NAME", "SBS Deutschland GmbH")
         
         self.db_path = "data/linkedin.db"
@@ -42,9 +42,9 @@ class LinkedInService:
         if not self.openai_api_key:
             # Fallback ohne AI
             return {
-                "content": f"🚀 {thema}\n\nSpannende Entwicklungen in diesem Bereich! Mehr dazu in Kürze.\n\n{self.sender_name}\n{self.company}",
-                "hashtags": ["#Innovation", "#Technology", "#Business"],
-                "call_to_action": "Was ist Ihre Meinung dazu? Kommentieren Sie!"
+                "content": f"🚀 {thema}\n\nSpannende Entwicklungen in diesem Bereich! Bei SBS Nexus arbeiten wir kontinuierlich an KI-Lösungen für den Mittelstand.\n\nMehr erfahren: www.sbsnexus.de\n\n{self.sender_name}\nGründer & CEO, {self.company}",
+                "hashtags": ["#SBSNexus", "#ERechnung", "#Steuerberater", "#DATEV", "#KI"],
+                "call_to_action": "Was sind Ihre Erfahrungen? → www.sbsnexus.de/partner"
             }
         
         try:
@@ -53,14 +53,16 @@ class LinkedInService:
             return {
                 "content": f"""🚀 {thema}
 
-Wir bei {self.company} arbeiten kontinuierlich an innovativen Lösungen.
+Wir bei {self.company} bauen SBS Nexus – das operative OS für den Mittelstand.
 
-{thema} ist ein wichtiger Aspekt unserer Strategie für 2026.
+{thema} ist ein zentraler Aspekt unserer Strategie für 2026. Ob Finance Intelligence, Contract Intelligence oder Technical Intelligence – KI verändert die Art, wie der deutsche Mittelstand arbeitet.
+
+Mehr erfahren: www.sbsnexus.de
 
 {self.sender_name}
-{self.company}""",
-                "hashtags": ["#Innovation", "#B2B", "#Technology", "#Leadership"],
-                "call_to_action": "Was sind Ihre Erfahrungen? Lassen Sie uns diskutieren!"
+Gründer & CEO, {self.company}""",
+                "hashtags": ["#SBSNexus", "#ERechnung", "#DATEV", "#Steuerberater", "#KI"],
+                "call_to_action": "Entdecken Sie unser Partnerprogramm: www.sbsnexus.de/partner"
             }
         
         except Exception as e:

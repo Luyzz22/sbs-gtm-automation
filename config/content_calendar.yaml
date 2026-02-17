@@ -1,60 +1,116 @@
+# SBS Nexus - LinkedIn Content Calendar
+# Fokus: KI-Rechnungsverarbeitung, E-Rechnung, DATEV, Steuerberater-Digitalisierung
+# LinkedIn Pages: /sbs-deutschland-gmbh-co-kg/ & /hydraulikdoc-ai/
+
 content_themes:
 - category: Thought Leadership
+  title: "E-Rechnungspflicht 2025 – Was Steuerberater jetzt wissen müssen"
   keywords:
+  - ERechnung
+  - XRechnung
+  - ZUGFeRD
   - Digitalisierung
-  - Mittelstand
-  - Innovation
-  - Industry4.0
-  title: Digital Transformation im Mittelstand
-- category: Technical
+  - Steuerberater
+  context: "Seit Januar 2025 Pflicht für B2B. SBS Nexus verarbeitet alle Formate automatisch."
+
+- category: Product Demo
+  title: "KI-Rechnungsverarbeitung in 8 Sekunden – Live-Demo"
   keywords:
-  - ERP
-  - SAP
-  - Implementation
-  - BestPractices
-  - Maschinenbau
-  title: ERP-Implementierung Best Practices
+  - KI
+  - Rechnungsverarbeitung
+  - Automatisierung
+  - SBSNexus
+  - DATEV
+  context: "99,2% Erkennungsgenauigkeit, automatischer DATEV-Export."
+
 - category: Business Case
+  title: "ROI-Analyse: 70% Zeitersparnis bei der Belegverarbeitung"
   keywords:
-  - CFO
   - ROI
-  - Kosteneffizienz
-  - Business
-  - Finance
-  title: 'CFO Insights: ROI von ERP-Systemen'
+  - Effizienz
+  - Steuerberatung
+  - Kostenersparnis
+  - Digitalisierung
+  context: "€82.464 jährlicher Gesamtnutzen für eine Kanzlei mit 15 MA."
+
 - category: Technical
+  title: "DATEV-Integration: Wie KI den Export automatisiert"
   keywords:
-  - Cloud
-  - OnPremise
-  - Hybrid
-  - Security
-  - Compliance
-  title: Cloud vs. On-Premise ERP
+  - DATEV
+  - UnternehmenOnline
+  - API
+  - Integration
+  - Buchhaltung
+  context: "Nahtlose Integration in bestehende DATEV-Workflows."
+
 - category: Case Study
+  title: "Digitale DATEV-Kanzlei 2026 – Der nächste Schritt mit KI"
   keywords:
-  - Success
-  - CaseStudy
-  - Efficiency
-  - Automation
-  - Results
-  title: 'Erfolgsgeschichte: 40% schnellere Prozesse'
+  - DigitaleKanzlei
+  - DATEV
+  - Innovation
+  - Steuerberatung
+  - KI
+  context: "Wie Vorreiter-Kanzleien KI für Wettbewerbsvorteile nutzen."
+
+- category: Partnership
+  title: "Steuerberater-Partnerprogramm: 15-25% Revenue Share"
+  keywords:
+  - Partnerschaft
+  - Steuerberater
+  - RevenueShare
+  - PassivesEinkommen
+  - SBSNexus
+  context: "3-Tier-Partnerprogramm ohne Vorabkosten."
+
 - category: Innovation
+  title: "Multimodale KI: Dokumente, Video & Audio – die Zukunft der Steuerberatung"
   keywords:
-  - AI
-  - Automation
-  - Manufacturing
-  - SmartFactory
-  - IoT
-  title: KI & Automation in der Fertigung
+  - KI
+  - Innovation
+  - MultimodalAI
+  - HydraulikDoc
+  - Zukunft
+  context: "SBS Deutschland kombiniert Dokumenten-KI, Video-Diagnose und Smart Maintenance."
+
+- category: Compliance
+  title: "DSGVO-konforme KI-Rechnungsverarbeitung – Server in Frankfurt"
+  keywords:
+  - DSGVO
+  - Datenschutz
+  - Compliance
+  - MadeInGermany
+  - Frankfurt
+  context: "Enterprise-Grade Security, Frankfurt-Server, deutsche Datenanforderungen."
+
 schedule:
+  posting_frequency: "3x pro Woche"
   optimal_times:
-  - day: Montag
-    reason: Wochenstart, hohe Aktivität
-    time: 08:30
-  - day: Mittwoch
-    reason: Mittagspause, gute Engagement-Rate
-    time: '12:00'
-  - day: Freitag
-    reason: Wochenabschluss, Zusammenfassungen
-    time: '15:00'
-  posting_frequency: 3x pro Woche
+  - day: Dienstag
+    time: "08:30"
+    reason: "Steuerberater starten Woche, hohe LinkedIn-Aktivität"
+  - day: Donnerstag
+    time: "12:00"
+    reason: "Mittagspause, gute Engagement-Rate bei Steuerberatern"
+  - day: Samstag
+    time: "09:00"
+    reason: "Weekend-Reader, Thought Leadership Content"
+
+  linkedin_pages:
+    primary: "https://www.linkedin.com/company/sbs-deutschland-gmbh-co-kg/"
+    secondary: "https://www.linkedin.com/company/hydraulikdoc-ai/"
+
+hashtag_strategy:
+  primary:
+    - "#SBSNexus"
+    - "#KIRechnungsverarbeitung"
+    - "#ERechnung"
+  secondary:
+    - "#Steuerberater"
+    - "#DATEV"
+    - "#Digitalisierung"
+    - "#Steuerberatung"
+  trending:
+    - "#KünstlicheIntelligenz"
+    - "#Automatisierung"
+    - "#MadeInGermany"

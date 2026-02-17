@@ -61,15 +61,28 @@ class ContentGenerator:
         
         return f"""Erstelle einen LinkedIn Post für {self.company_name}.
 
+UNTERNEHMEN: SBS Deutschland GmbH & Co. KG (Weinheim, Rhein-Neckar)
+PLATTFORM: SBS Nexus – Das operative OS für den fertigenden Mittelstand
+3 MODULE:
+  1. Finance Intelligence: KI-Rechnungsverarbeitung (8 Sek, 99,2% Genauigkeit, DATEV + SAP Export)
+  2. Contract Intelligence: KI-Vertragsanalyse (Klauselerkennung, Fristenmanagement) → contract.sbsdeutschland.com
+  3. Technical Intelligence / HydraulikDoc AI: Technische Dokumenten-KI (RAG für Datenblätter & Handbücher)
+ZIELGRUPPE: 89.000 Steuerberater in DE, fertigender Mittelstand (50-5.000 MA)
+PARTNERPROGRAMM: 15-25% Revenue Share für Steuerberater → www.sbsnexus.de/partner
+WEBSITES: www.sbsnexus.de | sbsdeutschland.com/sbshomepage/ | contract.sbsdeutschland.com
+DEMO: calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call
+COMPLIANCE: DSGVO-konform, Server in Frankfurt, E-Rechnungspflicht 2025
+LINKEDIN: /sbs-deutschland-gmbh-co-kg/ | /hydraulikdoc-ai/
+
 Thema: {topic}
 Stil: {style_descriptions.get(style, "professionell")}
 Maximale Länge: {max_length} Zeichen
 
 Struktur:
-1. Aufmerksamkeitsstarke erste Zeile
-2. Hauptinhalt mit Mehrwert
-3. 3-5 relevante Hashtags
-4. Call-to-Action
+1. Aufmerksamkeitsstarke erste Zeile (Hook)
+2. Hauptinhalt mit Mehrwert und konkreten Zahlen
+3. 3-5 relevante Hashtags (#SBSNexus #ERechnung #Steuerberater #DATEV #KI)
+4. Call-to-Action (Link zu sbsnexus.de oder Calendly)
 
 Format:
 [CONTENT]
@@ -81,14 +94,14 @@ Dein Post-Text hier...
 [CTA]
 Dein Call-to-Action hier...
 
-Schreibe auf Deutsch und halte dich an die Zeichenlimit!"""
+Schreibe auf Deutsch, Enterprise-Standard (Apple/SAP Niveau), authentisch und konkret!"""
 
     def _generate_with_openai(self, prompt: str) -> str:
         """Generiert Content mit OpenAI GPT-4"""
         response = self.openai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "Du bist ein LinkedIn Marketing Experte für B2B Software-Unternehmen."},
+                {"role": "system", "content": "Du bist LinkedIn Content-Stratege für SBS Deutschland GmbH – ein Enterprise SaaS-Unternehmen im Bereich KI-gestützte Dokumentenverarbeitung (SBS Nexus). Du schreibst auf dem Niveau von Apple, SAP und NVIDIA Corporate Communications. Fokus: Steuerberater-Markt, DATEV-Integration, E-Rechnungspflicht."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
@@ -102,7 +115,7 @@ Schreibe auf Deutsch und halte dich an die Zeichenlimit!"""
             model="claude-3-5-sonnet-20241022",
             max_tokens=600,
             temperature=0.7,
-            system="Du bist ein LinkedIn Marketing Experte für B2B Software-Unternehmen.",
+            system="Du bist LinkedIn Content-Stratege für SBS Deutschland GmbH – ein Enterprise SaaS-Unternehmen im Bereich KI-gestützte Dokumentenverarbeitung (SBS Nexus). Du schreibst auf dem Niveau von Apple, SAP und NVIDIA. Fokus: Steuerberater-Markt, DATEV-Integration, E-Rechnungspflicht.",
             messages=[{"role": "user", "content": prompt}]
         )
         return message.content[0].text
