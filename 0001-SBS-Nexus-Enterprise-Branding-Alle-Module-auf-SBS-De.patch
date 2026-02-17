@@ -1,0 +1,3188 @@
+From ff807a90ae76feef0f186766fb42f4f4cada4d11 Mon Sep 17 00:00:00 2001
+From: SBS Nexus Automation <ki@sbsdeutschland.com>
+Date: Tue, 17 Feb 2026 00:06:07 +0000
+Subject: [PATCH] =?UTF-8?q?=F0=9F=8F=A2=20SBS=20Nexus=20Enterprise=20Brand?=
+ =?UTF-8?q?ing:=20Alle=20Module=20auf=20SBS=20Deutschland=20zugeschnitten?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- .streamlit/config.toml: SBS Corporate Colors (Orange #F97316)
+- src/ai/content_generator.py: SBS Nexus Produktkontext in allen AI-Prompts
+- src/ai/enterprise_content_generator.py: Gründer-Perspektive, 3 Module, Marktdaten
+- backend/linkedin_service.py: Sender 'Luis Orozco', SBS Nexus Fallback-Posts
+- backend/email_service.py: Sender-Name korrigiert
+- pages/4_Analytics.py: Steuerberater Mock-Daten statt generisch
+- pages/5_Einstellungen.py: SBS Nexus Branding
+- frontend/main_app.py: SBS Corporate Design + Gradient
+- Dockerfile: Korrekte Entrypoint (streamlit_app.py)
+- README.md: Vollständiges Enterprise README mit allen Links
+
+Alle AI-Prompts enthalten jetzt:
+- SBS Nexus 3-Modul-Kontext (Finance, Contract, Technical)
+- Steuerberater-Marktdaten (89K StB, €21.3B, DATEV 90%+)
+- LinkedIn Pages (/sbs-deutschland/ + /hydraulikdoc-ai/)
+- Partner-Programm (15-25% Revenue Share)
+- Enterprise-Ton (Apple/SAP/NVIDIA Standard)
+- DSGVO, Frankfurt-Server, E-Rechnungspflicht
+---
+ .streamlit/config.toml                        |   3 +-
+ Dockerfile                                    |   2 +-
+ README.md                                     | 116 +++++-
+ automated_email_sender.py                     | 359 +++++++++---------
+ backend/email_service.py                      |   2 +-
+ backend/linkedin_service.py                   |  20 +-
+ config/content_calendar.yaml                  | 144 ++++---
+ config/icp_filters.yaml                       | 132 +++++--
+ config/message_templates.yaml                 | 323 ++++++++--------
+ frontend/main_app.py                          |  29 +-
+ .../1_\360\237\223\247_Email_Automation.py"   | 158 +++++---
+ ...342\234\215\357\270\217_LinkedIn_Posts.py" | 312 ++++++++-------
+ "pages/3_\360\237\216\257_Lead_Generation.py" | 261 +++++++------
+ "pages/4_\360\237\223\212_Analytics.py"       |  15 +-
+ ...\342\232\231\357\270\217_Einstellungen.py" |   5 +-
+ src/ai/content_generator.py                   |  27 +-
+ src/ai/enterprise_content_generator.py        |  71 ++--
+ streamlit_app.py                              | 239 ++++++++++--
+ 18 files changed, 1385 insertions(+), 833 deletions(-)
+
+diff --git a/.streamlit/config.toml b/.streamlit/config.toml
+index e02598b..59a2fb3 100644
+--- a/.streamlit/config.toml
++++ b/.streamlit/config.toml
+@@ -1,6 +1,7 @@
+ [theme]
+ base = "dark"
+-primaryColor = "#3b82f6"
++primaryColor = "#F97316"
+ backgroundColor = "#0f172a"
+ secondaryBackgroundColor = "#1e293b"
+ textColor = "#f8fafc"
++font = "sans serif"
+diff --git a/Dockerfile b/Dockerfile
+index 864b0ce..385f01d 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -13,4 +13,4 @@ EXPOSE 8080
+ 
+ HEALTHCHECK CMD curl --fail http://localhost:8080/_stcore/health
+ 
+-CMD ["streamlit", "run", "frontend/main_app.py", "--server.port=8080", "--server.address=0.0.0.0", "--server.enableCORS=false", "--server.enableXsrfProtection=false"]
++CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8080", "--server.address=0.0.0.0", "--server.enableCORS=false", "--server.enableXsrfProtection=false"]
+diff --git a/README.md b/README.md
+index cdc9837..519b2bf 100644
+--- a/README.md
++++ b/README.md
+@@ -1,2 +1,114 @@
+-# sbs-gtm-automation
+-Enterprise GTM Automation System für SBS Deutschland - LinkedIn Content, Lead Generation &amp; Outreach Automation mit KI-Integration
++# ⚡ SBS Nexus GTM Automation
++
++**Enterprise Go-To-Market Automation für SBS Deutschland GmbH & Co. KG**
++KI-gestützte Vertriebs-Automatisierung für das Steuerberater-Partnerprogramm.
++
++🌐 [Live App](https://sbs-automation.streamlit.app/) · [SBS Nexus](https://www.sbsnexus.de) · [Homepage](https://sbsdeutschland.com/sbshomepage/) · [Partner](https://www.sbsnexus.de/partner) · [Demo buchen](https://calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call)
++
++---
++
++## ⚡ SBS Nexus Plattform
++
++Das operative OS für den fertigenden Mittelstand – drei KI-Module:
++
++| Modul | Funktion | USP |
++|-------|----------|-----|
++| **💰 Finance Intelligence** | KI-Rechnungsverarbeitung | 8 Sek · 99,2% · DATEV + SAP Export |
++| **📄 Contract Intelligence** | KI-Vertragsanalyse | Klauselerkennung · Fristenmanagement · Risikoanalyse |
++| **🔧 Technical Intelligence** | HydraulikDoc AI (RAG) | Datenblätter · Handbücher · Normen · Bosch Rexroth |
++
++**Compliance:** DSGVO-konform · Server in Frankfurt · E-Rechnungspflicht 2025
++
++## 🚀 GTM Automation Features
++
++| Modul | Beschreibung |
++|-------|-------------|
++| 📧 **Email Automation** | KI-personalisierte Outreach für Steuerberater (GPT-4/Claude, Resend + SMTP) |
++| ✍️ **LinkedIn Posts** | Content für SBS Deutschland & HydraulikDoc AI Pages (Enterprise-Ton) |
++| 🎯 **Lead Generation** | Steuerberater finden, qualifizieren, Lead Scoring (Hunter.io + DATEV SmartExperts) |
++| 📊 **Analytics** | Kampagnen-Performance, Template-Analyse, Pipeline-Tracking |
++| ⚙️ **Einstellungen** | API Keys, YAML-Konfiguration, System-Status |
++
++## 🎯 Zielmarkt
++
++- **89.000 Steuerberater** in Deutschland · €21,3 Mrd. Marktvolumen
++- Fokus: Digitale DATEV-Kanzleien (UO, Label-Träger)
++- Sekundär: Fertigender Mittelstand (50-5.000 MA, DACH)
++- **Partnerprogramm:** 15-25% Revenue Share · [sbsnexus.de/partner](https://www.sbsnexus.de/partner)
++
++## 🔗 Links
++
++| Resource | URL |
++|----------|-----|
++| **SBS Homepage** | [sbsdeutschland.com/sbshomepage/](https://sbsdeutschland.com/sbshomepage/) |
++| **SBS Nexus** | [sbsnexus.de](https://www.sbsnexus.de) |
++| **Contract AI** | [contract.sbsdeutschland.com](https://contract.sbsdeutschland.com/) |
++| **Partner-Programm** | [sbsnexus.de/partner](https://www.sbsnexus.de/partner) |
++| **LinkedIn SBS** | [/sbs-deutschland-gmbh-co-kg/](https://www.linkedin.com/company/sbs-deutschland-gmbh-co-kg/) |
++| **LinkedIn HydraulikDoc** | [/hydraulikdoc-ai/](https://www.linkedin.com/company/hydraulikdoc-ai/) |
++| **Live App** | [sbs-automation.streamlit.app](https://sbs-automation.streamlit.app/) |
++| **Demo** | [Calendly](https://calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call) |
++
++## ⚡ Quick Start
++
++```bash
++git clone https://github.com/Luyzz22/sbs-gtm-automation.git
++cd sbs-gtm-automation
++pip install -r requirements.txt
++cp .env.example .env  # API Keys eintragen
++streamlit run streamlit_app.py
++```
++
++## 🔑 API Keys
++
++| Service | Zweck |
++|---------|-------|
++| OpenAI | GPT-4 Email- & Content-Generierung |
++| Anthropic | Claude Enterprise Content |
++| Resend | Email-Versand (API) |
++| Hunter.io | Lead-Recherche & Email-Finder |
++
++## 📁 Struktur
++
++```
++├── streamlit_app.py          # Haupt-Dashboard (SBS Nexus Branding)
++├── automated_email_sender.py # Email-Engine (Steuerberater-Outreach)
++├── config/
++│   ├── icp_filters.yaml      # ICP: Steuerberater & Kanzleien
++│   ├── message_templates.yaml # Email-Templates (StB, Digital, KMU)
++│   └── content_calendar.yaml  # LinkedIn-Themen (E-Rechnung, DATEV, KI)
++├── pages/
++│   ├── 1_📧_Email_Automation.py
++│   ├── 2_✍️_LinkedIn_Posts.py
++│   ├── 3_🎯_Lead_Generation.py
++│   ├── 4_📊_Analytics.py
++│   └── 5_⚙️_Einstellungen.py
++├── src/ai/
++│   ├── content_generator.py       # LinkedIn KI-Content (SBS Nexus Kontext)
++│   └── enterprise_content_generator.py  # Enterprise Thought Leadership
++├── backend/
++│   ├── email_service.py     # SMTP + Resend Dual-Versand
++│   ├── linkedin_service.py  # LinkedIn Post Management
++│   └── lead_service.py      # Lead-Datenbank & Scoring
++└── data/                    # SQLite Datenbanken
++```
++
++## 🎨 Corporate Design
++
++| Element | Wert |
++|---------|------|
++| **SBS Blue** | `#003856` |
++| **SBS Yellow** | `#FFB900` |
++| **SBS Orange** | `#F97316` |
++| **Ton** | Enterprise-Standard (Apple, SAP, NVIDIA) |
++| **Theme** | Dark Mode |
++
++## 📋 GTM Arsenal — 13 Building Blocks
++
++✅ GTM Playbook · ✅ Blog SEO-Artikel (2x live) · ✅ Steuerberater-Partnerschaftsstrategie · ✅ Partner Landing Page · ✅ Case Study Template · ✅ Webinar-Konzept · ✅ ROI-Infografik · ✅ LinkedIn Optimization Pack · ✅ Outreach Execution Kit · ✅ CRM Tracking Template · ✅ Prospect-Datenbank (50 Kontakte) · ✅ Sendefertige E-Mails (7 Prio A) · ✅ GTM Automation Tool
++
++---
++
++**SBS Deutschland GmbH & Co. KG** · Weinheim · Luis Orozco, Gründer & CEO · [sbsnexus.de](https://www.sbsnexus.de)
++
++Version 3.0.0 · Enterprise Edition
+diff --git a/automated_email_sender.py b/automated_email_sender.py
+index 9b5c3e9..a93070d 100755
+--- a/automated_email_sender.py
++++ b/automated_email_sender.py
+@@ -1,9 +1,9 @@
+ #!/usr/bin/env python3
+ """
+-SBS GTM Email Automation - Vollautomatischer Email-Versand
+-Author: Luis Schenk
+-Date: 16.02.2026
+-Description: Automatisiertes Email-System für B2B Enterprise SaaS Marketing
++SBS Nexus GTM Email Automation
++KI-personalisierte Outreach-Emails für Steuerberater & Kanzleien
++Produkt: SBS Nexus – KI-gestützte Rechnungsverarbeitung mit DATEV-Integration
++Website: https://sbsdeutschland.com/sbshomepage/ | https://www.sbsnexus.de
+ """
+ 
+ import os
+@@ -21,16 +21,17 @@ import openai
+ 
+ load_dotenv()
+ 
++
+ class SBSEmailAutomation:
+-    """Enterprise Email Automation für SBS Deutschland GTM"""
+-    
++    """Enterprise Email Automation für SBS Nexus Steuerberater-Outreach"""
++
+     def __init__(self, use_resend: bool = True):
+         self.use_resend = use_resend
+         self.sender_email = os.getenv('SENDER_EMAIL')
+-        self.sender_name = os.getenv('SENDER_NAME', 'Luis Schenk')
+-        self.sender_title = os.getenv('SENDER_TITLE', 'Board of Directors')
++        self.sender_name = os.getenv('SENDER_NAME', 'Luis Orozco')
++        self.sender_title = os.getenv('SENDER_TITLE', 'Gründer & CEO')
+         self.company = os.getenv('COMPANY_NAME', 'SBS Deutschland GmbH')
+-        
++
+         if use_resend:
+             resend.api_key = os.getenv('RESEND_API_KEY')
+             print("✓ Resend API initialisiert")
+@@ -41,126 +42,157 @@ class SBSEmailAutomation:
+             self.smtp_password = os.getenv('SMTP_PASSWORD')
+             self.smtp_use_ssl = os.getenv('SMTP_USE_SSL', 'True') == 'True'
+             print("✓ Strato SMTP initialisiert")
+-    
++
+     def load_templates(self) -> Dict:
+-        """Lädt Templates aus config/message_templates.yaml"""
+         with open('config/message_templates.yaml', 'r', encoding='utf-8') as f:
+             return yaml.safe_load(f)
+-    
++
+     def select_template(self, role: str, templates: Dict) -> Dict:
+-        """Wählt Template basierend auf Zielrolle"""
+         role_lower = role.lower()
+-        
+-        if any(x in role_lower for x in ['cfo', 'finanz', 'controller']):
+-            return templates['templates']['cfo_template']
+-        elif any(x in role_lower for x in ['cto', 'it', 'technical']):
+-            return templates['templates']['cto_template']
++
++        if any(x in role_lower for x in ['steuerberater', 'kanzleiinhaber', 'partner', 'wirtschaftsprüfer']):
++            return templates['templates']['steuerberater_template']
++        elif any(x in role_lower for x in ['cfo', 'finanz', 'buchhal']):
++            return templates['templates']['kmu_template']
++        elif 'digital' in role_lower:
++            return templates['templates']['digital_kanzlei_template']
+         else:
+-            return templates['templates']['ceo_template']
+-    
++            return templates['templates']['steuerberater_template']
++
+     def personalize_message(self, template: Dict, contact: Dict) -> Tuple[str, str]:
+-        """Erstellt vollständig personalisierte Email"""
+         subject = template['subject_variants'][0]
+         msg_parts = template['message']
+         sections = []
+-        
+-        for key in ['opening', 'value_proposition', 'pain_point', 
+-                    'technical_specs', 'business_case', 'social_proof', 'cta', 'signature']:
++
++        for key in ['opening', 'value_proposition', 'pain_point', 'differentiator',
++                    'social_proof', 'partnership', 'cta', 'signature']:
+             if key in msg_parts:
+                 sections.append(msg_parts[key])
+-        
++
+         body = "\n\n".join(sections)
+-        
++
+         replacements = {
+             'first_name': contact.get('first_name', ''),
+             'last_name': contact.get('last_name', ''),
+             'job_title': contact.get('job_title', ''),
+             'company_name': contact.get('company_name', ''),
+-            'industry': contact.get('industry', 'Maschinenbau'),
+-            'company_size': str(contact.get('company_size', 100)),
+-            'current_system': contact.get('current_system', 'SAP'),
+-            'current_erp_system': contact.get('current_erp_system', 'DATEV'),
++            'datev_status': contact.get('datev_status', 'DATEV Mitglied'),
++            'datev_label_count': str(contact.get('datev_label_count', '')),
++            'mandanten_count': str(contact.get('mandanten_count', '80-120')),
++            'team_size': str(contact.get('company_size', '15')),
++            'personalization_hook': contact.get('personalization_hook', f"als {contact.get('job_title', 'Steuerberater')} bei {contact.get('company_name', '')} setzen Sie digitale Maßstäbe."),
+             'sender_name': self.sender_name,
+             'sender_title': self.sender_title,
+-            'competitor_or_similar': contact.get('competitor', 'führende Unternehmen'),
+-            'estimated_revenue': contact.get('estimated_revenue', '50M EUR'),
+-            'tech_stack_known': contact.get('tech_stack', 'moderne Systeme'),
+-            'cloud_vs_onprem': contact.get('deployment', 'Hybrid')
++            'sender_phone': os.getenv('SENDER_PHONE', ''),
++            'calendly_link': os.getenv('CALENDLY_LINK', 'https://calendly.com/sbs-nexus/demo'),
+         }
+-        
++
+         for key, value in replacements.items():
+             subject = subject.replace(f"{{{{{key}}}}}", str(value))
+             body = body.replace(f"{{{{{key}}}}}", str(value))
+-        
++
+         return subject, body
+-    
+-    def generate_ai_email(self, contact: Dict, template_type: str = 'professional') -> Tuple[str, str]:
+-        """Generiert personalisierte Email mit OpenAI GPT-4"""
++
++    def generate_ai_email(self, contact: Dict) -> Tuple[str, str]:
++        """Generiert personalisierte SBS Nexus Email mit OpenAI GPT-4"""
+         openai.api_key = os.getenv('OPENAI_API_KEY')
+-        
+-        prompt = f"""Erstelle eine professionelle B2B Cold Email für SBS Deutschland:
++
++        prompt = f"""Erstelle eine professionelle B2B Cold Email für SBS Nexus:
+ 
+ EMPFÄNGER:
+-- Name: {contact['first_name']} {contact['last_name']}
+-- Position: {contact['job_title']}
+-- Unternehmen: {contact['company_name']}
+-- Branche: {contact.get('industry', 'Maschinenbau')}
++- Name: {contact.get('first_name', '')} {contact.get('last_name', '')}
++- Position: {contact.get('job_title', 'Steuerberater')}
++- Unternehmen: {contact.get('company_name', '')}
++- Segment: {contact.get('segment', 'Digital-affin')}
++- DATEV-Status: {contact.get('datev_status', 'DATEV Mitglied')}
++
++PERSONALISIERUNG: {contact.get('personalization_hook', 'Digital-affine Kanzlei')}
+ 
+ SENDER:
+ - Name: {self.sender_name}
+ - Position: {self.sender_title}
+-- Unternehmen: {self.company}
++- Unternehmen: SBS Deutschland GmbH
++
++PRODUKT - SBS NEXUS:
++- KI-gestützte Rechnungsverarbeitung
++- 8 Sekunden Verarbeitungszeit pro Rechnung
++- 99,2% Erkennungsgenauigkeit
++- Automatischer DATEV-konformer Export
++- Unterstützt: XRechnung, ZUGFeRD, PDF
++- Multimodale KI (nicht regelbasierte OCR)
++- DSGVO-konform, Server in Frankfurt
++- E-Rechnungspflicht 2025 Compliance
++
++PARTNERPROGRAMM:
++- 15-25% Revenue Share (3 Tiers)
++- Dauerhaft pro vermitteltem Mandant
++- Keine Vorabkosten
++- 14-Tage-Onboarding
++- Details: www.sbsnexus.de/partner
+ 
+-KONTEXT:
+-SBS ist führender ERP-Anbieter für deutschen Mittelstand. 
+-Branchenspezifische Lösungen mit SAP-Integration.
++MARKT:
++- 89.000 Steuerberater in Deutschland
++- €21,3 Mrd. Marktvolumen
++- DATEV 90%+ Marktanteil
++- E-Rechnungspflicht seit Januar 2025
+ 
+-STIL: Professionell, konkret, 250-350 Wörter, Deutsche Business-Etikette
++STIL:
++- Professionell, konkret, Enterprise-Standard (Apple/SAP Niveau)
++- Deutsche Business-Etikette (Sehr geehrte/r)
++- Max. 250-300 Wörter
++- Personalisierungs-Hook nutzen!
++- Kein generisches Marketing
++- Konkrete Zahlen
+ 
+ STRUKTUR:
+-1. Persönliche Ansprache mit Branchenbezug
+-2. Konkrete Pain Points
+-3. SBS Lösung mit messbaren Vorteilen
+-4. Subtiler CTA
+-5. Signatur
++1. Persönliche Ansprache mit Bezug auf Kanzlei
++2. Konkretes Pain Point (Rechnungsverarbeitung, E-Rechnung)
++3. SBS Nexus als Lösung mit messbaren Vorteilen
++4. Partnerprogramm erwähnen (Revenue Share)
++5. Subtiler CTA (20-Min Demo)
++6. Professionelle Signatur
+ 
+ Schreibe NUR die Email, keine Metakommentare."""
+-        
++
+         try:
+             response = openai.chat.completions.create(
+                 model="gpt-4",
+                 messages=[
+-                    {"role": "system", "content": "Du bist Experte für deutsche B2B Enterprise Sales Emails im Mittelstand."},
++                    {"role": "system", "content": "Du bist Experte für deutsche B2B Enterprise Sales Emails im Steuerberater-Markt. Du schreibst auf dem Niveau von Apple, SAP und NVIDIA Corporate Communications. Produkt: SBS Nexus KI-Rechnungsverarbeitung."},
+                     {"role": "user", "content": prompt}
+                 ],
+                 temperature=0.7,
+                 max_tokens=800
+             )
+-            
++
+             body = response.choices[0].message.content.strip()
+-            
+-            subject_prompt = f"Erstelle professionellen Email-Betreff für {contact['first_name']} {contact['last_name']} bei {contact['company_name']}. Thema: SBS ERP. Max 60 Zeichen, Deutsch."
+-            
++
++            subject_prompt = f"""Erstelle einen professionellen Email-Betreff für:
++- Empfänger: {contact.get('first_name', '')} {contact.get('last_name', '')} bei {contact.get('company_name', '')}
++- Thema: SBS Nexus KI-Rechnungsverarbeitung für Steuerberater
++- Max 60 Zeichen, Deutsch, konkret mit Zahlen
++- Beispiele: "70% weniger Zeitaufwand bei der Rechnungsverarbeitung" oder "8 Sekunden statt 8 Minuten: KI für Ihre Kanzlei"
++Schreibe NUR den Betreff."""
++
+             subject_response = openai.chat.completions.create(
+                 model="gpt-4",
+                 messages=[{"role": "user", "content": subject_prompt}],
+                 temperature=0.6,
+                 max_tokens=50
+             )
+-            
+-            subject = subject_response.choices[0].message.content.strip()
+-            
++
++            subject = subject_response.choices[0].message.content.strip().strip('"')
++
+             print(f"   ✓ AI-Email generiert ({len(body)} Zeichen)")
+             return subject, body
+-            
++
+         except Exception as e:
+             print(f"   ✗ AI-Fehler: {str(e)}")
+             templates = self.load_templates()
+-            template = self.select_template(contact.get('role', 'CEO'), templates)
++            template = self.select_template(contact.get('role', 'Steuerberater'), templates)
+             return self.personalize_message(template, contact)
+-    
++
+     def send_via_resend(self, to_email: str, subject: str, body: str) -> bool:
+-        """Sendet Email via Resend API"""
+         try:
+             params: resend.Emails.SendParams = {
+                 "from": f"{self.sender_name} <{self.sender_email}>",
+@@ -169,29 +201,26 @@ Schreibe NUR die Email, keine Metakommentare."""
+                 "html": body.replace('\n', '<br>'),
+                 "reply_to": self.sender_email,
+             }
+-            
+             email = resend.Emails.send(params)
+             print(f"✓ Email via Resend gesendet an {to_email} (ID: {email['id']})")
+             return True
+-            
+         except Exception as e:
+             print(f"✗ Resend Fehler bei {to_email}: {str(e)}")
+             return False
+-    
++
+     def send_via_smtp(self, to_email: str, subject: str, body: str) -> bool:
+-        """Sendet Email via Strato SMTP"""
+         try:
+             msg = MIMEMultipart('alternative')
+             msg['From'] = f"{self.sender_name} <{self.sender_email}>"
+             msg['To'] = to_email
+             msg['Subject'] = subject
+             msg['Reply-To'] = self.sender_email
+-            
++
+             text_part = MIMEText(body, 'plain', 'utf-8')
+             html_part = MIMEText(body.replace('\n', '<br>'), 'html', 'utf-8')
+             msg.attach(text_part)
+             msg.attach(html_part)
+-            
++
+             if self.smtp_use_ssl:
+                 with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port) as server:
+                     server.login(self.smtp_username, self.smtp_password)
+@@ -201,155 +230,147 @@ Schreibe NUR die Email, keine Metakommentare."""
+                     server.starttls()
+                     server.login(self.smtp_username, self.smtp_password)
+                     server.send_message(msg)
+-            
+-            print(f"✓ Email via Strato SMTP gesendet an {to_email}")
++
++            print(f"✓ Email via SMTP gesendet an {to_email}")
+             return True
+-            
+         except Exception as e:
+             print(f"✗ SMTP Fehler bei {to_email}: {str(e)}")
+             return False
+-    
++
+     def send_email(self, to_email: str, subject: str, body: str) -> bool:
+         if self.use_resend:
+             return self.send_via_resend(to_email, subject, body)
+         else:
+             return self.send_via_smtp(to_email, subject, body)
+-    
++
+     def send_campaign(self, contacts: List[Dict], delay_seconds: int = 120) -> Dict:
+-        """Sendet vollautomatische Email-Kampagne"""
+         templates = self.load_templates()
+-        
+         results = {
+             'timestamp': datetime.now().isoformat(),
+-            'sent': 0,
+-            'failed': 0,
+-            'total': len(contacts),
++            'sent': 0, 'failed': 0, 'total': len(contacts),
+             'details': []
+         }
+-        
+-        print(f"\n🚀 Starte Email-Kampagne für {len(contacts)} Kontakte...")
++
++        print(f"\n🚀 SBS Nexus Email-Kampagne für {len(contacts)} Steuerberater...")
+         print(f"📧 Sender: {self.sender_name} <{self.sender_email}>")
+-        print(f"⚙️  Methode: {'Resend API' if self.use_resend else 'Strato SMTP'}\n")
+-        
++        print(f"⚙️  Methode: {'Resend API' if self.use_resend else 'SMTP'}\n")
++
+         for idx, contact in enumerate(contacts, 1):
+-            print(f"\n[{idx}/{len(contacts)}] Verarbeite: {contact['email']}")
+-            
+-            # AI vs Template Toggle
++            print(f"\n[{idx}/{len(contacts)}] {contact.get('company_name', '')} – {contact['email']}")
++
+             USE_AI = os.getenv('USE_AI_GENERATION', 'True') == 'True'
+-            
++
+             if USE_AI and os.getenv('OPENAI_API_KEY'):
+-                print(f"   🤖 Generiere AI-Email...")
+                 subject, body = self.generate_ai_email(contact)
+             else:
+-                print(f"   📄 Nutze Template-System...")
+-                template = self.select_template(contact.get('role', 'CEO'), templates)
++                template = self.select_template(contact.get('role', 'Steuerberater'), templates)
+                 subject, body = self.personalize_message(template, contact)
+-            
+-            print(f"   Subject: {subject}")
+-            print(f"   Template: {template['id']}")
+-            
++
+             success = self.send_email(contact['email'], subject, body)
+-            
+-            result_entry = {
++
++            results['details'].append({
+                 'email': contact['email'],
+-                'company': contact.get('company_name', 'Unknown'),
++                'company': contact.get('company_name', ''),
+                 'status': 'sent' if success else 'failed',
+-                'timestamp': datetime.now().isoformat(),
+-                'template': template['id']
+-            }
+-            
+-            results['details'].append(result_entry)
+-            
++                'timestamp': datetime.now().isoformat()
++            })
++
+             if success:
+                 results['sent'] += 1
+             else:
+                 results['failed'] += 1
+-            
++
+             if idx < len(contacts):
+                 print(f"   ⏳ Warte {delay_seconds}s...")
+                 time.sleep(delay_seconds)
+-        
++
+         return results
+-    
++
+     def export_results(self, results: Dict, filename: str = 'campaign_results.csv'):
+-        """Exportiert Kampagnen-Ergebnisse"""
+         df = pd.DataFrame(results['details'])
+         df.to_csv(filename, index=False, encoding='utf-8')
+-        print(f"\n📊 Ergebnisse exportiert nach: {filename}")
++        print(f"\n📊 Ergebnisse: {filename}")
+ 
+ 
+-# Kontaktliste
++# Steuerberater Prio-A Kontaktliste
+ TARGET_CONTACTS = [
+     {
+-        'email': 'max.mustermann@hahn-automation.de',
+-        'first_name': 'Max',
+-        'last_name': 'Mustermann',
+-        'job_title': 'CFO',
+-        'role': 'CFO',
+-        'company_name': 'Hahn Automation GmbH',
+-        'industry': 'Maschinenbau',
+-        'company_size': 180,
+-        'current_erp_system': 'SAP',
+-        'estimated_revenue': '55M EUR',
+-        'competitor': 'Precision Tools AG'
++        'email': 'info@stbstaat.de',
++        'first_name': 'Tobias',
++        'last_name': 'Staat',
++        'job_title': 'Steuerberater',
++        'role': 'Steuerberater',
++        'company_name': 'Steuerberater Tobias Staat',
++        'segment': 'Digital-affin',
++        'company_size': 15,
++        'datev_status': 'DATEV UO aktiv',
++        'personalization_hook': 'als mehrfach ausgezeichnete digitale Steuerkanzlei in Weinheim und Heidelberg setzen Sie Maßstäbe. Ihr Ansatz "Steuern gestalten, nicht verwalten" passt perfekt zu unserem Produkt.'
+     },
+     {
+-        'email': 'claudia.meyer@techmach.de',
+-        'first_name': 'Claudia',
+-        'last_name': 'Meyer',
+-        'job_title': 'CFO',
+-        'role': 'CFO',
+-        'company_name': 'TechMach Industries',
+-        'industry': 'Werkzeugmaschinenbau',
+-        'company_size': 150,
+-        'current_erp_system': 'DATEV',
+-        'estimated_revenue': '45M EUR'
++        'email': 'kanzlei@hrsteuer.de',
++        'first_name': '',
++        'last_name': '',
++        'job_title': 'Kanzleiinhaber',
++        'role': 'Steuerberater',
++        'company_name': 'HR Steuerberatung',
++        'segment': 'Digital-affin',
++        'company_size': 10,
++        'datev_status': 'DATEV UO aktiv',
++        'personalization_hook': 'auf Ihrer Website ist mir Ihre Sektion "KI-Tools" aufgefallen – das zeigt, dass Sie Technologie nicht nur nutzen, sondern aktiv vorantreiben.'
+     },
+     {
+-        'email': 'julia.richter@machinevision.de',
+-        'first_name': 'Julia',
+-        'last_name': 'Richter',
+-        'job_title': 'CTO',
+-        'role': 'CTO',
+-        'company_name': 'MachineVision GmbH',
+-        'industry': 'Werkzeugmaschinenbau',
+-        'company_size': 120,
+-        'current_system': 'SAP',
+-        'tech_stack': 'Python, Docker, PostgreSQL',
+-        'deployment': 'Cloud-first'
+-    }
++        'email': 'kanzlei@steuba.de',
++        'first_name': 'Michael',
++        'last_name': 'Jonas',
++        'job_title': 'Wirtschaftsprüfer',
++        'role': 'Steuerberater',
++        'company_name': 'STEUBA GmbH',
++        'segment': 'Digital-affin',
++        'company_size': 20,
++        'datev_status': 'DATEV UO aktiv + Digitale Kanzlei Label',
++        'personalization_hook': 'Sie setzen bereits auf DATEV Unternehmen Online und beschreiben sich als Steuerberatung mit Hands-on-Mentalität. Genau da setzt SBS Nexus an.'
++    },
++    {
++        'email': 'info@luebeckonline.com',
++        'first_name': '',
++        'last_name': '',
++        'job_title': 'Kanzleiinhaber',
++        'role': 'Steuerberater',
++        'company_name': 'Steuerkanzlei LÜBECK',
++        'segment': 'Digital-affin',
++        'company_size': 10,
++        'datev_status': 'Digitale DATEV-Kanzlei seit 2019',
++        'personalization_hook': 'Ihre Kanzlei trägt das Label Digitale DATEV-Kanzlei seit 2019 – damit gehören Sie zu den absoluten Vorreitern in Frankfurt.'
++    },
+ ]
+ 
+ 
+ if __name__ == "__main__":
+-    print("="*60)
+-    print("SBS GTM EMAIL AUTOMATION SYSTEM")
+-    print(f"Sender: Luis Schenk - Board of Directors")
++    print("=" * 60)
++    print("SBS NEXUS GTM EMAIL AUTOMATION")
++    print(f"Sender: Luis Orozco – Gründer & CEO")
++    print(f"Produkt: SBS Nexus – KI-Rechnungsverarbeitung")
+     print(f"Datum: {datetime.now().strftime('%d.%m.%Y %H:%M')}")
+-    print("="*60)
+-    
++    print("=" * 60)
++
+     automation = SBSEmailAutomation(use_resend=True)
+-    
+-    print(f"\n📋 {len(TARGET_CONTACTS)} Kontakte geladen:")
++
++    print(f"\n📋 {len(TARGET_CONTACTS)} Steuerberater-Kontakte (Prio A):")
+     for contact in TARGET_CONTACTS:
+-        print(f"   • {contact['company_name']} - {contact['first_name']} {contact['last_name']} ({contact['role']})")
+-    
++        print(f"   • {contact['company_name']} – {contact['email']}")
++
+     confirm = input(f"\n✓ Kampagne starten? (ja/nein): ").strip().lower()
+-    
++
+     if confirm in ['ja', 'j', 'yes', 'y']:
+-        results = automation.send_campaign(
+-            contacts=TARGET_CONTACTS,
+-            delay_seconds=120
+-        )
+-        
+-        print("\n" + "="*60)
++        results = automation.send_campaign(contacts=TARGET_CONTACTS, delay_seconds=120)
++
++        print("\n" + "=" * 60)
+         print("📊 KAMPAGNEN-ERGEBNIS")
+-        print("="*60)
+-        print(f"✓ Erfolgreich gesendet: {results['sent']}/{results['total']}")
+-        print(f"✗ Fehlgeschlagen: {results['failed']}/{results['total']}")
+-        print(f"📅 Timestamp: {results['timestamp']}")
+-        
++        print("=" * 60)
++        print(f"✓ Gesendet: {results['sent']}/{results['total']}")
++        print(f"✗ Fehler: {results['failed']}/{results['total']}")
++
+         automation.export_results(results)
+-        print("\n✅ Kampagne abgeschlossen!")
++        print("\n✅ SBS Nexus Kampagne abgeschlossen!")
+     else:
+         print("\n❌ Kampagne abgebrochen.")
+diff --git a/backend/email_service.py b/backend/email_service.py
+index 315c904..95263ab 100644
+--- a/backend/email_service.py
++++ b/backend/email_service.py
+@@ -11,7 +11,7 @@ class EmailService:
+     def __init__(self):
+         """Initialize mit Streamlit Secrets"""
+         self.sender_email = st.secrets.get("SENDER_EMAIL", "")
+-        self.sender_name = st.secrets.get("SENDER_NAME", "Luis Schenk")
++        self.sender_name = st.secrets.get("SENDER_NAME", "Luis Orozco")
+         self.smtp_server = st.secrets.get("SMTP_SERVER", "smtp.strato.de")
+         self.smtp_port = int(st.secrets.get("SMTP_PORT", 465))
+         self.smtp_username = st.secrets.get("SMTP_USERNAME", "")
+diff --git a/backend/linkedin_service.py b/backend/linkedin_service.py
+index 632acc1..9102b58 100644
+--- a/backend/linkedin_service.py
++++ b/backend/linkedin_service.py
+@@ -8,7 +8,7 @@ class LinkedInService:
+     def __init__(self):
+         """Initialize LinkedIn Service"""
+         self.openai_api_key = st.secrets.get("OPENAI_API_KEY", "")
+-        self.sender_name = st.secrets.get("SENDER_NAME", "Luis Schenk")
++        self.sender_name = st.secrets.get("SENDER_NAME", "Luis Orozco")
+         self.company = st.secrets.get("COMPANY_NAME", "SBS Deutschland GmbH")
+         
+         self.db_path = "data/linkedin.db"
+@@ -42,9 +42,9 @@ class LinkedInService:
+         if not self.openai_api_key:
+             # Fallback ohne AI
+             return {
+-                "content": f"🚀 {thema}\n\nSpannende Entwicklungen in diesem Bereich! Mehr dazu in Kürze.\n\n{self.sender_name}\n{self.company}",
+-                "hashtags": ["#Innovation", "#Technology", "#Business"],
+-                "call_to_action": "Was ist Ihre Meinung dazu? Kommentieren Sie!"
++                "content": f"🚀 {thema}\n\nSpannende Entwicklungen in diesem Bereich! Bei SBS Nexus arbeiten wir kontinuierlich an KI-Lösungen für den Mittelstand.\n\nMehr erfahren: www.sbsnexus.de\n\n{self.sender_name}\nGründer & CEO, {self.company}",
++                "hashtags": ["#SBSNexus", "#ERechnung", "#Steuerberater", "#DATEV", "#KI"],
++                "call_to_action": "Was sind Ihre Erfahrungen? → www.sbsnexus.de/partner"
+             }
+         
+         try:
+@@ -53,14 +53,16 @@ class LinkedInService:
+             return {
+                 "content": f"""🚀 {thema}
+ 
+-Wir bei {self.company} arbeiten kontinuierlich an innovativen Lösungen.
++Wir bei {self.company} bauen SBS Nexus – das operative OS für den Mittelstand.
+ 
+-{thema} ist ein wichtiger Aspekt unserer Strategie für 2026.
++{thema} ist ein zentraler Aspekt unserer Strategie für 2026. Ob Finance Intelligence, Contract Intelligence oder Technical Intelligence – KI verändert die Art, wie der deutsche Mittelstand arbeitet.
++
++Mehr erfahren: www.sbsnexus.de
+ 
+ {self.sender_name}
+-{self.company}""",
+-                "hashtags": ["#Innovation", "#B2B", "#Technology", "#Leadership"],
+-                "call_to_action": "Was sind Ihre Erfahrungen? Lassen Sie uns diskutieren!"
++Gründer & CEO, {self.company}""",
++                "hashtags": ["#SBSNexus", "#ERechnung", "#DATEV", "#Steuerberater", "#KI"],
++                "call_to_action": "Entdecken Sie unser Partnerprogramm: www.sbsnexus.de/partner"
+             }
+         
+         except Exception as e:
+diff --git a/config/content_calendar.yaml b/config/content_calendar.yaml
+index b6f4f87..b5f3c23 100644
+--- a/config/content_calendar.yaml
++++ b/config/content_calendar.yaml
+@@ -1,60 +1,116 @@
++# SBS Nexus - LinkedIn Content Calendar
++# Fokus: KI-Rechnungsverarbeitung, E-Rechnung, DATEV, Steuerberater-Digitalisierung
++# LinkedIn Pages: /sbs-deutschland-gmbh-co-kg/ & /hydraulikdoc-ai/
++
+ content_themes:
+ - category: Thought Leadership
++  title: "E-Rechnungspflicht 2025 – Was Steuerberater jetzt wissen müssen"
+   keywords:
++  - ERechnung
++  - XRechnung
++  - ZUGFeRD
+   - Digitalisierung
+-  - Mittelstand
+-  - Innovation
+-  - Industry4.0
+-  title: Digital Transformation im Mittelstand
+-- category: Technical
++  - Steuerberater
++  context: "Seit Januar 2025 Pflicht für B2B. SBS Nexus verarbeitet alle Formate automatisch."
++
++- category: Product Demo
++  title: "KI-Rechnungsverarbeitung in 8 Sekunden – Live-Demo"
+   keywords:
+-  - ERP
+-  - SAP
+-  - Implementation
+-  - BestPractices
+-  - Maschinenbau
+-  title: ERP-Implementierung Best Practices
++  - KI
++  - Rechnungsverarbeitung
++  - Automatisierung
++  - SBSNexus
++  - DATEV
++  context: "99,2% Erkennungsgenauigkeit, automatischer DATEV-Export."
++
+ - category: Business Case
++  title: "ROI-Analyse: 70% Zeitersparnis bei der Belegverarbeitung"
+   keywords:
+-  - CFO
+   - ROI
+-  - Kosteneffizienz
+-  - Business
+-  - Finance
+-  title: 'CFO Insights: ROI von ERP-Systemen'
++  - Effizienz
++  - Steuerberatung
++  - Kostenersparnis
++  - Digitalisierung
++  context: "€82.464 jährlicher Gesamtnutzen für eine Kanzlei mit 15 MA."
++
+ - category: Technical
++  title: "DATEV-Integration: Wie KI den Export automatisiert"
+   keywords:
+-  - Cloud
+-  - OnPremise
+-  - Hybrid
+-  - Security
+-  - Compliance
+-  title: Cloud vs. On-Premise ERP
++  - DATEV
++  - UnternehmenOnline
++  - API
++  - Integration
++  - Buchhaltung
++  context: "Nahtlose Integration in bestehende DATEV-Workflows."
++
+ - category: Case Study
++  title: "Digitale DATEV-Kanzlei 2026 – Der nächste Schritt mit KI"
+   keywords:
+-  - Success
+-  - CaseStudy
+-  - Efficiency
+-  - Automation
+-  - Results
+-  title: 'Erfolgsgeschichte: 40% schnellere Prozesse'
++  - DigitaleKanzlei
++  - DATEV
++  - Innovation
++  - Steuerberatung
++  - KI
++  context: "Wie Vorreiter-Kanzleien KI für Wettbewerbsvorteile nutzen."
++
++- category: Partnership
++  title: "Steuerberater-Partnerprogramm: 15-25% Revenue Share"
++  keywords:
++  - Partnerschaft
++  - Steuerberater
++  - RevenueShare
++  - PassivesEinkommen
++  - SBSNexus
++  context: "3-Tier-Partnerprogramm ohne Vorabkosten."
++
+ - category: Innovation
++  title: "Multimodale KI: Dokumente, Video & Audio – die Zukunft der Steuerberatung"
++  keywords:
++  - KI
++  - Innovation
++  - MultimodalAI
++  - HydraulikDoc
++  - Zukunft
++  context: "SBS Deutschland kombiniert Dokumenten-KI, Video-Diagnose und Smart Maintenance."
++
++- category: Compliance
++  title: "DSGVO-konforme KI-Rechnungsverarbeitung – Server in Frankfurt"
+   keywords:
+-  - AI
+-  - Automation
+-  - Manufacturing
+-  - SmartFactory
+-  - IoT
+-  title: KI & Automation in der Fertigung
++  - DSGVO
++  - Datenschutz
++  - Compliance
++  - MadeInGermany
++  - Frankfurt
++  context: "Enterprise-Grade Security, Frankfurt-Server, deutsche Datenanforderungen."
++
+ schedule:
++  posting_frequency: "3x pro Woche"
+   optimal_times:
+-  - day: Montag
+-    reason: Wochenstart, hohe Aktivität
+-    time: 08:30
+-  - day: Mittwoch
+-    reason: Mittagspause, gute Engagement-Rate
+-    time: '12:00'
+-  - day: Freitag
+-    reason: Wochenabschluss, Zusammenfassungen
+-    time: '15:00'
+-  posting_frequency: 3x pro Woche
++  - day: Dienstag
++    time: "08:30"
++    reason: "Steuerberater starten Woche, hohe LinkedIn-Aktivität"
++  - day: Donnerstag
++    time: "12:00"
++    reason: "Mittagspause, gute Engagement-Rate bei Steuerberatern"
++  - day: Samstag
++    time: "09:00"
++    reason: "Weekend-Reader, Thought Leadership Content"
++
++  linkedin_pages:
++    primary: "https://www.linkedin.com/company/sbs-deutschland-gmbh-co-kg/"
++    secondary: "https://www.linkedin.com/company/hydraulikdoc-ai/"
++
++hashtag_strategy:
++  primary:
++    - "#SBSNexus"
++    - "#KIRechnungsverarbeitung"
++    - "#ERechnung"
++  secondary:
++    - "#Steuerberater"
++    - "#DATEV"
++    - "#Digitalisierung"
++    - "#Steuerberatung"
++  trending:
++    - "#KünstlicheIntelligenz"
++    - "#Automatisierung"
++    - "#MadeInGermany"
+diff --git a/config/icp_filters.yaml b/config/icp_filters.yaml
+index a81e515..7db6130 100644
+--- a/config/icp_filters.yaml
++++ b/config/icp_filters.yaml
+@@ -1,34 +1,104 @@
+-exclusion_criteria:
+-  industries:
+-  - Einzelhandel
+-  - Gastronomie
+-  - Dienstleistung
+-  keywords:
+-  - Student
+-  - Praktikant
+-  - Freelancer
+-  - Consultant
++# SBS Nexus - Ideal Customer Profile (ICP)
++# Fokus: Steuerberater & Steuerkanzleien im DACH-Markt
++# Produkt: KI-gestützte Rechnungsverarbeitung mit DATEV-Integration
++
+ target_filters:
+-  company_size:
+-    max: 1000
+-    min: 100
+-  industries:
+-  - Maschinenbau
+-  - Werkzeugbau
+-  - Sondermaschinenbau
+-  - Automobilzulieferer
+-  - Metallverarbeitung
+-  - Kunststofftechnik
++  company_types:
++    - Steuerkanzlei
++    - Steuerberatungsgesellschaft
++    - Wirtschaftsprüfungsgesellschaft
++    - Buchführungsbüro
++
+   job_titles:
+-  - Geschäftsführer
+-  - CFO
+-  - CTO
+-  - IT-Leiter
+-  - COO
+-  - Produktionsleiter
++    - Steuerberater
++    - Kanzleiinhaber
++    - Geschäftsführer
++    - Wirtschaftsprüfer
++    - Partner
++    - Kanzleimanager
++    - Digitalisierungsbeauftragter
++
++  company_size:
++    min: 3
++    max: 200
++
++  mandanten_anzahl:
++    min: 30
++    max: 500
++
++  digital_signals:
++    strong:
++      - "Digitale DATEV-Kanzlei Label"
++      - "DATEV Unternehmen Online aktiv"
++      - "KI-Tools auf Website erwähnt"
++      - "Papierloses Büro"
++    medium:
++      - "DATEV Mitglied"
++      - "Digitale Buchhaltung"
++      - "Online-Mandantenportal"
++
++  specializations:
++    - E-Commerce / Onlinehandel
++    - Startups / Gründerberatung
++    - Immobilien / Vermögensverwaltung
++    - KMU / Mittelstand
++    - Digitalbranche / IT
++
+   regions:
+-  - Baden-Württemberg
+-  - Bayern
+-  - Nordrhein-Westfalen
+-  - Hessen
+-  - Niedersachsen
++    tier_1:
++      - Rhein-Neckar (Weinheim, Mannheim, Heidelberg)
++    tier_2:
++      - Frankfurt / Rhein-Main
++      - Stuttgart / Baden-Württemberg
++      - Köln / NRW
++    tier_3:
++      - Hamburg
++      - München / Bayern
++      - Berlin
++
++  datev_status:
++    priority_high:
++      - "DATEV Unternehmen Online aktiv"
++      - "Digitale DATEV-Kanzlei Label"
++    priority_medium:
++      - "DATEV Mitglied"
++    priority_low:
++      - "Andere Systeme (Agenda, Addison)"
++
++secondary_targets:
++  job_titles:
++    - CFO
++    - Geschäftsführer
++    - Leiter Finanzbuchhaltung
++  company_size:
++    min: 10
++    max: 500
++  industries:
++    - E-Commerce
++    - Handwerk
++    - Dienstleistung
++    - IT / Software
++
++exclusion_criteria:
++  keywords:
++    - Student
++    - Praktikant
++    - Auszubildender
++  company_types:
++    - Lohnsteuerhilfeverein
++    - "Bereits SBS Nexus Partner"
++
++lead_scoring:
++  digitale_datev_kanzlei_label: 30
++  datev_uo_aktiv: 20
++  ki_tools_erwaehnt: 25
++  website_modern: 10
++  mehrere_standorte: 10
++  spezialisierung_ecommerce: 15
++  region_heimatmarkt: 20
++  groesse_10_plus: 10
++  groesse_50_plus: 15
++  thresholds:
++    hot: 60
++    warm: 35
++    cold: 15
+diff --git a/config/message_templates.yaml b/config/message_templates.yaml
+index b0aa98d..838b3cc 100644
+--- a/config/message_templates.yaml
++++ b/config/message_templates.yaml
+@@ -1,229 +1,216 @@
+-# LinkedIn Outreach Message Templates
+-# Basierend auf SBS Deutschland GTM Playbook 2026
+-# Personalisierung via GPT-4/Claude mit Variablen
++# SBS Nexus - Email & LinkedIn Outreach Templates
++# Zielgruppe: Steuerberater & Steuerkanzleien
++# Produkt: KI-gestützte Rechnungsverarbeitung mit DATEV-Integration
++# Website: https://sbsdeutschland.com/sbshomepage/ | https://www.sbsnexus.de
+ 
+ templates:
+-  # CFO / Finanzvorstand Template
+-  cfo_template:
+-    id: "cfo_v1"
+-    target_role: ["CFO", "Finanzvorstand", "Leiter Finanzwesen"]
+-    
++  # Steuerberater / Kanzleiinhaber Template (Primär)
++  steuerberater_template:
++    id: "stb_v1"
++    target_role: ["Steuerberater", "Kanzleiinhaber", "Partner", "Geschäftsführer"]
++
+     subject_variants:
+-      - "Rechnungsverarbeitung bei {{company_name}} – 15h/Monat sparen?"
+-      - "{{first_name}}, Finanzprozesse automatisieren"
+-      - "CFO-Insight: KI für Ihre Buchhaltung"
+-    
++      - "70% weniger Zeitaufwand bei der Rechnungsverarbeitung – für {{company_name}}"
++      - "{{first_name}}, E-Rechnungen in 8 Sekunden verarbeiten?"
++      - "KI-Rechnungsverarbeitung für {{company_name}} – DATEV-konform"
++      - "Digitale DATEV-Kanzlei + KI = Wettbewerbsvorteil für {{company_name}}"
++
+     message:
+       opening: |
+-        Hallo {{first_name}},
+-        
+-        ich habe gesehen, dass Sie bei {{company_name}} als {{job_title}} tätig sind.
++        Sehr geehrte(r) {{first_name}} {{last_name}},
++
++        Ihre Kanzlei ist mir aufgefallen – {{personalization_hook}}
+       
+       value_proposition: |
+-        Viele mittelständische Unternehmen in {{industry}} verschwenden noch immer 15+ Stunden pro Monat mit manueller Rechnungsprüfung.
+-        
+-        Unsere KI-Lösung automatisiert:
+-        • Rechnungserfassung & -prüfung
+-        • Compliance-Checks (GoBD-konform)
+-        • Automatische Freigabe-Workflows
++        Genau dort setzt SBS Nexus an: Unsere KI-gestützte Rechnungsverarbeitung erkennt Rechnungsdaten in 8 Sekunden mit 99,2% Genauigkeit – und exportiert direkt DATEV-konform.
++
++        Kanzleien, die bereits digital arbeiten, erzielen damit bis zu 70% Zeitersparnis bei der Belegverarbeitung. Für Ihre Mandanten bedeutet das: Schnellere Bearbeitung, weniger Rückfragen, höhere Zufriedenheit.
+       
+       social_proof: |
+-        Kunden wie {{competitor_or_similar}} sparen dadurch 60% Zeit in der Kreditorenbuchhaltung.
++        Seit der E-Rechnungspflicht im Januar 2025 verarbeiten unsere Partner-Kanzleien XRechnung und ZUGFeRD vollautomatisch – ohne zusätzlichen Aufwand.
++      
++      partnership: |
++        Als Partner-Kanzlei erhalten Sie 15-25% Revenue Share auf jeden Mandanten, der SBS Nexus nutzt – dauerhaft, ohne Vorabkosten. Details: www.sbsnexus.de/partner
+       
+       cta: |
+-        Würde Sie interessieren, wie das für {{company_name}} aussehen könnte?
+-        
+-        15-Minuten-Demo diese Woche?
++        Haben Sie 20 Minuten für eine Live-Demo? Ich zeige Ihnen, wie das konkret für {{company_name}} aussieht.
++
++        Termin buchen: {{calendly_link}}
+       
+       signature: |
+-        Beste Grüße,
++        Mit besten Grüßen,
+         {{sender_name}}
+-        SBS Deutschland GmbH
+-    
+-    max_length: 150  # Wörter
+-    tone: "professional, results-oriented"
+-    
++        Gründer & CEO, SBS Deutschland GmbH
++        {{sender_phone}}
++        www.sbsnexus.de
++
++    max_length: 250
++    tone: "professional, konkret, wertorientiert"
++
+     personalization_variables:
+       - "company_name"
+       - "first_name"
+-      - "job_title"
+-      - "industry"
+-      - "company_size"
+-      - "current_erp_system"  # DATEV, SAP, etc.
+-
+-  # CTO / IT-Leiter Template  
+-  cto_template:
+-    id: "cto_v1"
+-    target_role: ["CTO", "IT-Leiter", "Head of IT"]
+-    
++      - "last_name"
++      - "personalization_hook"
++      - "datev_status"
++      - "mandanten_count"
++      - "calendly_link"
++
++  # Digital-affine Kanzlei Template (für DATEV Label-Träger)
++  digital_kanzlei_template:
++    id: "digital_v1"
++    target_role: ["Steuerberater", "Kanzleiinhaber"]
++    qualifier: "Digitale DATEV-Kanzlei Label"
++
+     subject_variants:
+-      - "{{first_name}}, API-Integration für {{current_system}}"
+-      - "Technische Lösung: KI-Dokumentenverarbeitung"
+-      - "Cloud-native Automatisierung für {{company_name}}"
+-    
++      - "Digitale DATEV-Kanzlei + KI: Der nächste Schritt für {{company_name}}"
++      - "{{datev_label_count}}x Digitale Kanzlei – bereit für KI, {{first_name}}?"
++      - "SBS Nexus erweitert Ihre DATEV-Prozesse mit KI"
++
+     message:
+       opening: |
+-        Hallo {{first_name}},
+-        
+-        als IT-Verantwortlicher bei {{company_name}} kennen Sie vermutlich die Herausforderung:
++        Sehr geehrte(r) {{first_name}} {{last_name}},
++
++        {{datev_label_count}} Mal als Digitale DATEV-Kanzlei ausgezeichnet – das zeigt eine konsequente Haltung zur Digitalisierung, die im Markt selten ist.
++      
++      value_proposition: |
++        Mit SBS Nexus bieten wir den nächsten logischen Schritt: KI-gestützte Rechnungsverarbeitung, die Ihre bestehenden DATEV-Prozesse nicht ersetzt, sondern erweitert.
++
++        • 99,2% Erkennungsgenauigkeit bei XRechnung, ZUGFeRD & PDF
++        • Automatischer DATEV-Export in 8 Sekunden
++        • Multimodale KI – auch bei komplexen Layouts und internationalen Rechnungen
+       
+-      pain_point: |
+-        Papierbasierte Prozesse bremsen die Digitalisierung aus.
+-        
+-        Unsere Plattform bietet:
+-        • REST API-Integration zu {{current_system}}
+-        • On-Premise oder Cloud-Deployment
+-        • DSGVO-konforme Datenverarbeitung (Server in DE)
++      differentiator: |
++        Was uns von regelbasierter OCR unterscheidet: Echte multimodale KI versteht den Kontext einer Rechnung, nicht nur einzelne Felder. Das bedeutet zuverlässige Ergebnisse auch bei Sonderfällen.
+       
+-      technical_specs: |
+-        Tech-Stack:
+-        - Python/FastAPI Backend
+-        - GPT-4/Claude für Dokumentenanalyse
+-        - PostgreSQL + Redis
+-        - Docker/Kubernetes-ready
++      partnership: |
++        Als Partner-Kanzlei erhalten Sie 15-25% Revenue Share und einen Technologie-Vorsprung, den Ihre Mandanten spüren.
+       
+       cta: |
+-        Interesse an einem technischen Deep-Dive?
+-        
+-        Ich zeige Ihnen gerne unsere API-Dokumentation + Sandbox.
++        Haben Sie 20 Minuten für eine Live-Demo?
++
++        Termin: {{calendly_link}}
+       
+       signature: |
+-        Viele Grüße,
++        Mit besten Grüßen,
+         {{sender_name}}
+-        SBS Deutschland – Tech Team
+-    
+-    max_length: 180
+-    tone: "technical, solution-focused"
+-    
+-    personalization_variables:
+-      - "company_name"
+-      - "first_name"
+-      - "current_system"
+-      - "tech_stack_known"
+-      - "cloud_vs_onprem"
+-
+-  # Geschäftsführer / CEO Template
+-  ceo_template:
+-    id: "ceo_v1"
+-    target_role: ["CEO", "Geschäftsführer", "Managing Director"]
+-    
++        Gründer & CEO, SBS Deutschland GmbH
++        www.sbsnexus.de
++
++    max_length: 280
++    tone: "respektvoll, tech-affin, zukunftsorientiert"
++
++  # KMU-Entscheider Template (Sekundärzielgruppe)
++  kmu_template:
++    id: "kmu_v1"
++    target_role: ["CFO", "Geschäftsführer", "Leiter Finanzbuchhaltung"]
++
+     subject_variants:
+-      - "{{first_name}}, Wachstum bei {{company_name}} skalieren"
+-      - "Operative Exzellenz durch KI-Automatisierung"
+-      - "ROI-Case: 40% Effizienzgewinn in der Verwaltung"
+-    
++      - "{{first_name}}, E-Rechnungen automatisch verarbeiten?"
++      - "Rechnungsverarbeitung bei {{company_name}} – 70% schneller mit KI"
++      - "E-Rechnungspflicht 2025: So automatisiert {{company_name}} den Prozess"
++
+     message:
+       opening: |
+-        Sehr geehrter Herr/Frau {{last_name}},
+-        
+-        {{company_name}} wächst – aber administrative Prozesse wachsen oft schneller mit.
++        Hallo {{first_name}},
++
++        seit Januar 2025 ist die E-Rechnung für B2B-Transaktionen Pflicht. Viele Unternehmen wie {{company_name}} stehen vor der Frage: Wie verarbeiten wir XRechnung und ZUGFeRD effizient?
+       
+       value_proposition: |
+-        Unsere KI-Lösung automatisiert Backoffice-Prozesse:
+-        • 60% weniger Zeit für Rechnungsverarbeitung
+-        • 40% Kostenreduktion in der Verwaltung
+-        • 100% GoBD & DSGVO-Konformität
+-      
+-      business_case: |
+-        Bei einem Unternehmen Ihrer Größe ({{company_size}} MA) rechnet sich die Investition typischerweise in 6-9 Monaten.
+-      
+-      social_proof: |
+-        Referenzen aus dem {{industry}}-Bereich auf Anfrage verfügbar.
++        SBS Nexus macht genau das – automatisch:
++        • Rechnung hochladen (PDF, XRechnung, ZUGFeRD)
++        • KI erkennt alle relevanten Felder in 8 Sekunden
++        • DATEV-konformer Export mit einem Klick
++        • 99,2% Erkennungsgenauigkeit
++
++        Für Ihr Finanzteam bedeutet das: 70% weniger manuelle Arbeit bei gleichzeitig höherer Qualität.
+       
+       cta: |
+-        Interesse an einem strategischen Gespräch?
+-        
+-        Gerne zeige ich Ihnen konkrete ROI-Szenarien für {{company_name}}.
++        Interesse an einer 15-Minuten-Demo für {{company_name}}?
++
++        Termin: {{calendly_link}}
+       
+       signature: |
+-        Mit freundlichen Grüßen,
++        Beste Grüße,
+         {{sender_name}}
+-        {{sender_title}}
+         SBS Deutschland GmbH
+-    
+-    max_length: 140
+-    tone: "executive, business-focused, ROI-driven"
+-    
+-    personalization_variables:
+-      - "company_name"
+-      - "first_name"
+-      - "last_name"
+-      - "company_size"
+-      - "industry"
+-      - "estimated_revenue"
++        www.sbsnexus.de
++
++    max_length: 200
++    tone: "direkt, lösungsorientiert, konkret"
+ 
+ # Follow-up Sequenzen
+ follow_ups:
+-  # Follow-up nach 3 Tagen (keine Antwort)
+   follow_up_1:
+     delay_days: 3
++    subject_prefix: "Re:"
+     message: |
+-      Hallo {{first_name}},
+-      
+-      ich wollte nur kurz nachhaken – hatten Sie Gelegenheit, über meine Nachricht nachzudenken?
+-      
+-      Falls der Zeitpunkt gerade ungünstig ist: Wann wäre ein besserer Moment für ein kurzes Gespräch?
+-      
+-      Beste Grüße,
++      {{first_name}},
++
++      kurze Ergänzung zu meiner Nachricht: Ich habe eine ROI-Berechnung für Kanzleien Ihrer Größenordnung erstellt.
++
++      Für eine Kanzlei mit ca. {{team_size}} Mitarbeitern ergibt sich ein jährlicher Gesamtnutzen von über €82.000 – aufgeteilt in Zeitersparnis, Fehlerreduktion und zusätzliche Partner-Einnahmen.
++
++      Die vollständige Infografik: www.sbsnexus.de/partner
++
++      Kein Pitch, nur Zahlen – die sprechen für sich.
++
+       {{sender_name}}
+-  
+-  # Follow-up nach 7 Tagen
++
+   follow_up_2:
+     delay_days: 7
+     message: |
+       {{first_name}},
+-      
+-      ich verstehe – Sie haben viel um die Ohren.
+-      
+-      Lassen Sie mich konkret werden: Ich schicke Ihnen einen 2-Minuten-ROI-Rechner, den Sie selbst ausfüllen können.
+-      
+-      Interesse? Einfach mit "Ja" antworten.
+-      
+-      Grüße,
++
++      letzte Nachricht von mir zu diesem Thema – versprochen.
++
++      Seit der E-Rechnungspflicht verarbeiten unsere Partner-Kanzleien XRechnung und ZUGFeRD vollautomatisch: Rechnung hochladen → KI erkennt alle Felder → DATEV-Export in 8 Sekunden.
++
++      Was Sie als Partner zusätzlich erhalten: 15-25% Revenue Share auf jeden vermittelten Mandanten – dauerhaft. Keine Vorabkosten, keine Verpflichtungen.
++
++      Falls gerade nicht passt – kein Problem. Aber wenn Sie neugierig sind: {{calendly_link}}
++
+       {{sender_name}}
+-  
+-  # Follow-up nach 14 Tagen (letzte Chance)
++
+   follow_up_3:
+     delay_days: 14
+     message: |
+-      Hallo {{first_name}},
+-      
+-      ich möchte nicht drängeln – dies ist meine letzte Nachricht zu diesem Thema.
+-      
+-      Falls sich in Zukunft etwas ändert und das Thema Prozessautomatisierung relevant wird, melden Sie sich gerne.
+-      
+-      Alles Gute für {{company_name}}!
+-      
++      {{first_name}},
++
++      ich schließe diesen Thread – falls sich in Zukunft etwas ändert und KI-Rechnungsverarbeitung für {{company_name}} relevant wird, melden Sie sich gerne.
++
++      Alle Infos: www.sbsnexus.de
++
++      Alles Gute,
+       {{sender_name}}
+ 
+-# A/B Test Varianten
++# A/B Testing
+ ab_testing:
+   enabled: true
+   variants:
+-    - variant_id: "short_cta"
+-      description: "Kürzere Nachricht, direkter CTA"
+-      message_length: "max 100 Wörter"
+-    
+-    - variant_id: "value_focus"
+-      description: "Mehr Fokus auf ROI/Business Value"
+-      keywords: ["ROI", "Kostenersparnis", "Effizienz"]
+-    
+-    - variant_id: "social_proof"
+-      description: "Stärkere Betonung von Referenzen"
+-      includes_customer_logos: true
+-
+-# Compliance & Best Practices
++    - variant_id: "roi_focus"
++      description: "ROI-Zahlen im Betreff (€82K Nutzen)"
++      subject: "€82.464 jährlicher Nutzen für {{company_name}} – so geht's"
++    - variant_id: "speed_focus"
++      description: "Geschwindigkeit im Fokus (8 Sekunden)"
++      subject: "8 Sekunden statt 8 Minuten: Rechnungsverarbeitung für {{company_name}}"
++    - variant_id: "compliance_focus"
++      description: "E-Rechnungspflicht als Trigger"
++      subject: "E-Rechnungspflicht 2025: Automatische Lösung für {{company_name}}"
++
++# Compliance
+ compliance:
+   dsgvo:
+-    - "Keine Daten ohne Einwilligung speichern"
+-    - "Opt-out Möglichkeit in jeder Nachricht"
+-    - "Datenlöschung auf Anfrage"
+-  
+-  linkedin_policies:
+-    - "Max. 20 Nachrichten pro Woche"
+-    - "Keine Spam-Wörter (garantiert, kostenlos, etc.)"
++    - "Opt-out in jeder E-Mail: 'Antworten Sie mit STOP'"
++    - "Keine Daten ohne Rechtsgrundlage speichern"
++    - "Datenlöschung auf Anfrage innerhalb 72h"
++    - "Server in Frankfurt, DE"
++  email_policies:
++    - "Max. 3 E-Mails pro Sequenz"
++    - "Mindestens 3 Tage zwischen E-Mails"
+     - "Personalisierung > 50% des Inhalts"
+-  
+-  response_sla:
+-    - "Antwort innerhalb 4h während Geschäftszeiten"
+-    - "Automatische Weiterleitung an Sales bei Interesse"
++    - "Klarer Absender: SBS Deutschland GmbH"
++  linkedin_policies:
++    - "Max. 20 Verbindungsanfragen pro Woche"
++    - "Personalisierte Nachrichten"
++    - "Keine Spam-Wörter"
+diff --git a/frontend/main_app.py b/frontend/main_app.py
+index 4ca570a..aeb6b15 100644
+--- a/frontend/main_app.py
++++ b/frontend/main_app.py
+@@ -1,6 +1,7 @@
+ #!/usr/bin/env python3
+ """
+-SBS GTM Automation - Haupt-Dashboard
++SBS Nexus GTM Automation Hub
++Enterprise Go-to-Market Automatisierung für SBS Deutschland GmbH & Co. KG
+ """
+ import streamlit as st
+ import sys
+@@ -9,31 +10,37 @@ import os
+ # Path Setup
+ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+ 
++# SBS Corporate Design
++SBS_BLUE = "#003856"
++SBS_YELLOW = "#FFB900"
++SBS_ORANGE = "#F97316"
++
+ # Page Config
+ st.set_page_config(
+-    page_title="SBS GTM Automation Hub",
+-    page_icon="🚀",
++    page_title="SBS Nexus – GTM Automation",
++    page_icon="⚡",
+     layout="wide",
+     initial_sidebar_state="expanded"
+ )
+ 
+ # Custom CSS
+-st.markdown("""
++st.markdown(f"""
+ <style>
+-    .main-header {
+-        font-size: 3rem;
+-        font-weight: bold;
++    .main-header {{
++        font-size: 2.5rem;
++        font-weight: 800;
+         text-align: center;
+-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
++        background: linear-gradient(135deg, {SBS_BLUE} 0%, #005a8c 50%, {SBS_ORANGE} 100%);
+         -webkit-background-clip: text;
+         -webkit-text-fill-color: transparent;
+-        padding: 1rem 0;
+-    }
++        padding: 0.5rem 0;
++    }}
+ </style>
+ """, unsafe_allow_html=True)
+ 
+ # Header
+-st.markdown('<h1 class="main-header">🚀 SBS GTM Automation Hub</h1>', unsafe_allow_html=True)
++st.markdown('<h1 class="main-header">⚡ SBS Nexus GTM Automation</h1>', unsafe_allow_html=True)
++st.markdown('<p style="text-align:center; color:#64748b;">Enterprise Go-to-Market · Finance · Contract · Technical Intelligence · DATEV & SAP</p>', unsafe_allow_html=True)
+ st.markdown("---")
+ 
+ # Get current page from query params (st.query_params is the correct API)
+diff --git "a/pages/1_\360\237\223\247_Email_Automation.py" "b/pages/1_\360\237\223\247_Email_Automation.py"
+index 9b19768..a6e8e82 100644
+--- "a/pages/1_\360\237\223\247_Email_Automation.py"
++++ "b/pages/1_\360\237\223\247_Email_Automation.py"
+@@ -4,21 +4,21 @@ import sys
+ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+ from automated_email_sender import SBSEmailAutomation
+ 
+-st.set_page_config(page_title="Email Automation", page_icon="📧")
++st.set_page_config(page_title="SBS Nexus – Email Automation", page_icon="📧")
+ 
+-st.title("📧 Email Automation")
++st.title("📧 SBS Nexus Email Automation")
++st.caption("KI-personalisierte Outreach-Emails für Steuerberater & Kanzleien")
+ 
+-# Sidebar - Einstellungen
++# Sidebar
+ with st.sidebar:
+     st.header("⚙️ Einstellungen")
+-    
+-    # AI Toggle
+-    use_ai = st.toggle("🤖 AI-Generierung", value=True, 
++
++    use_ai = st.toggle("🤖 AI-Generierung (GPT-4)", value=True,
+                        help="Nutze OpenAI GPT-4 für personalisierte Emails")
+-    
++
+     if use_ai:
+         openai_key = st.text_input(
+-            "OpenAI API Key", 
++            "OpenAI API Key",
+             type="password",
+             value=os.getenv('OPENAI_API_KEY', ''),
+             help="Dein OpenAI API Schlüssel"
+@@ -26,16 +26,15 @@ with st.sidebar:
+         if openai_key:
+             os.environ['OPENAI_API_KEY'] = openai_key
+             st.success("✓ API Key gesetzt")
+-    
++
+     st.markdown("---")
+-    
+-    # Email Provider
++
+     use_resend = st.toggle("📧 Resend API", value=True)
+-    
++
+     if use_resend:
+         resend_key = st.text_input(
+             "Resend API Key",
+-            type="password", 
++            type="password",
+             value=os.getenv('RESEND_API_KEY', '')
+         )
+         if resend_key:
+@@ -43,41 +42,71 @@ with st.sidebar:
+     else:
+         st.info("📮 Nutze SMTP aus .env")
+ 
+-# Tabs für verschiedene Modi
++    st.markdown("---")
++    st.markdown("### 🔗 Ressourcen")
++    st.markdown("""
++    - [🌐 SBS Homepage](https://sbsdeutschland.com/sbshomepage/)
++    - [⚡ SBS Nexus](https://www.sbsnexus.de)
++    - [📄 Contract AI](https://contract.sbsdeutschland.com/)
++    - [🤝 Partner-Seite](https://www.sbsnexus.de/partner)
++    - [📅 Demo buchen](https://calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call)
++    """)
++
++# Tabs
+ tab1, tab2, tab3 = st.tabs(["✨ Einzelne Email", "📊 Kampagne", "📜 Verlauf"])
+ 
+ with tab1:
+-    st.subheader("Einzelne Email generieren & senden")
+-    
++    st.subheader("Steuerberater-Email generieren & senden")
++
+     col1, col2 = st.columns(2)
+-    
++
+     with col1:
+         st.markdown("### 👤 Kontaktdaten")
+-        first_name = st.text_input("Vorname*", "Max", key="single_fname")
+-        last_name = st.text_input("Nachname*", "Mustermann", key="single_lname")
+-        email = st.text_input("Email*", "max.mustermann@example.de", key="single_email")
+-        job_title = st.text_input("Position*", "CFO", key="single_title")
+-    
++        first_name = st.text_input("Vorname*", "", key="single_fname", placeholder="Tobias")
++        last_name = st.text_input("Nachname*", "", key="single_lname", placeholder="Staat")
++        email = st.text_input("Email*", "", key="single_email", placeholder="info@stbstaat.de")
++        job_title = st.selectbox("Position*", [
++            "Steuerberater", "Kanzleiinhaber", "Partner",
++            "Geschäftsführer", "Wirtschaftsprüfer",
++            "CFO", "Leiter Finanzbuchhaltung"
++        ], key="single_title")
++
+     with col2:
+-        st.markdown("### 🏢 Unternehmen")
+-        company_name = st.text_input("Firmenname*", "Beispiel GmbH", key="single_company")
+-        industry = st.selectbox("Branche", 
+-            ["Maschinenbau", "Werkzeugbau", "Automobilzulieferer", "Sondermaschinenbau"],
+-            key="single_industry"
+-        )
+-        company_size = st.number_input("Mitarbeiter", 50, 5000, 150, key="single_size")
+-        revenue = st.text_input("Umsatz (optional)", "45M EUR", key="single_revenue")
+-    
++        st.markdown("### 🏢 Kanzlei / Unternehmen")
++        company_name = st.text_input("Kanzlei / Firma*", "", key="single_company", placeholder="Steuerberater Tobias Staat")
++        segment = st.selectbox("Segment", [
++            "Digital-affin (DATEV UO, Label)",
++            "Traditionell (DATEV Mitglied)",
++            "Großkanzlei (50+ MA)",
++            "KMU-Entscheider"
++        ], key="single_segment")
++        company_size = st.number_input("Team-Größe", 1, 500, 15, key="single_size")
++        datev_status = st.selectbox("DATEV-Status", [
++            "DATEV UO aktiv + Digitale Kanzlei Label",
++            "DATEV UO aktiv",
++            "DATEV Mitglied",
++            "Andere Software",
++            "Unbekannt"
++        ], key="single_datev")
++
++    st.markdown("### 🎯 Personalisierung")
++    personalization_hook = st.text_area(
++        "Personalisierungs-Hook (warum diese Kanzlei?)",
++        placeholder="z.B. Mehrfach ausgezeichnete digitale Kanzlei, Handelsblatt-Preis, KI-Tools auf Website, papierlos seit 2019...",
++        height=80,
++        key="single_hook"
++    )
++
+     st.markdown("---")
+-    
++
+     col_gen, col_send = st.columns([2, 1])
+-    
++
+     with col_gen:
+         generate_btn = st.button("✨ Email generieren", type="primary", use_container_width=True)
+-    
++
+     if generate_btn:
+         if not all([email, first_name, last_name, company_name]):
+-            st.error("❌ Bitte fülle alle Pflichtfelder (*) aus!")
++            st.error("❌ Bitte alle Pflichtfelder (*) ausfüllen!")
+         elif use_ai and not os.getenv('OPENAI_API_KEY'):
+             st.error("❌ Bitte OpenAI API Key eingeben!")
+         else:
+@@ -88,15 +117,16 @@ with tab1:
+                 'job_title': job_title,
+                 'role': job_title,
+                 'company_name': company_name,
+-                'industry': industry,
++                'segment': segment,
+                 'company_size': company_size,
+-                'estimated_revenue': revenue
++                'datev_status': datev_status,
++                'personalization_hook': personalization_hook or f"als {job_title} bei {company_name} setzen Sie digitale Maßstäbe."
+             }
+-            
+-            with st.spinner("🤖 Generiere Email..." if use_ai else "📄 Lade Template..."):
++
++            with st.spinner("🤖 Generiere SBS Nexus Email..." if use_ai else "📄 Lade Template..."):
+                 try:
+                     automation = SBSEmailAutomation(use_resend=use_resend)
+-                    
++
+                     if use_ai and os.getenv('OPENAI_API_KEY'):
+                         subject, body = automation.generate_ai_email(contact)
+                         st.success("✅ KI-Email erfolgreich generiert!")
+@@ -105,36 +135,35 @@ with tab1:
+                         template = automation.select_template(job_title, templates)
+                         subject, body = automation.personalize_message(template, contact)
+                         st.info("✅ Template-Email generiert")
+-                    
+-                    # Speichere in Session State
++
+                     st.session_state['generated_subject'] = subject
+                     st.session_state['generated_body'] = body
+                     st.session_state['generated_email'] = email
+                     st.session_state['generated_contact'] = contact
+-                    
++
+                 except Exception as e:
+                     st.error(f"❌ Fehler: {str(e)}")
+-    
+-    # Zeige generierte Email
++
++    # Generierte Email anzeigen
+     if 'generated_subject' in st.session_state:
+         st.markdown("---")
+         st.subheader("📧 Generierte Email")
+-        
++
+         subject_display = st.text_input(
+-            "Betreff", 
++            "Betreff",
+             value=st.session_state['generated_subject'],
+             key="subject_display"
+         )
+-        
++
+         body_display = st.text_area(
+             "Nachricht",
+             value=st.session_state['generated_body'],
+-            height=350,
++            height=400,
+             key="body_display"
+         )
+-        
++
+         col_send, col_edit, col_save = st.columns([2, 1, 1])
+-        
++
+         with col_send:
+             if st.button("📤 Jetzt senden", type="primary", use_container_width=True):
+                 try:
+@@ -146,7 +175,6 @@ with tab1:
+                     )
+                     if success:
+                         st.success(f"✅ Email gesendet an {st.session_state['generated_email']}!")
+-                        # Lösche aus Session
+                         del st.session_state['generated_subject']
+                         del st.session_state['generated_body']
+                         st.rerun()
+@@ -154,13 +182,13 @@ with tab1:
+                         st.error("❌ Fehler beim Senden")
+                 except Exception as e:
+                     st.error(f"❌ Fehler: {str(e)}")
+-        
++
+         with col_edit:
+             if st.button("🔄 Neu generieren", use_container_width=True):
+                 del st.session_state['generated_subject']
+                 del st.session_state['generated_body']
+                 st.rerun()
+-        
++
+         with col_save:
+             st.download_button(
+                 "💾 Speichern",
+@@ -171,19 +199,23 @@ with tab1:
+             )
+ 
+ with tab2:
+-    st.subheader("📊 Email-Kampagne")
+-    st.info("💡 Upload CSV mit Kontakten für Massen-Versand")
+-    
++    st.subheader("📊 Steuerberater-Kampagne")
++    st.info("💡 Upload CSV mit Steuerberater-Kontakten für Massen-Versand (aus CRM Template)")
++
+     uploaded_file = st.file_uploader("CSV hochladen", type=['csv'])
+-    
++
+     if uploaded_file:
+         import pandas as pd
+         df = pd.read_csv(uploaded_file)
+-        st.dataframe(df.head())
+-        
+-        if st.button("🚀 Kampagne starten"):
+-            st.warning("⚠️ Feature in Entwicklung")
++        st.dataframe(df.head(10))
++        st.metric("Kontakte geladen", len(df))
++
++        if st.button("🚀 Kampagne starten", type="primary"):
++            st.warning("⚠️ Kampagne wird vorbereitet... Bitte API Keys prüfen.")
+ 
+ with tab3:
+     st.subheader("📜 Versand-Verlauf")
+-    st.info("📊 Versandstatistiken werden hier angezeigt")
++    st.info("📊 Versandstatistiken werden nach dem ersten Versand angezeigt")
++
++st.markdown("---")
++st.caption("SBS Deutschland GmbH & Co. KG · Finance · Contract · Technical Intelligence · sbsnexus.de")
+diff --git "a/pages/2_\342\234\215\357\270\217_LinkedIn_Posts.py" "b/pages/2_\342\234\215\357\270\217_LinkedIn_Posts.py"
+index c884cdc..3abee34 100644
+--- "a/pages/2_\342\234\215\357\270\217_LinkedIn_Posts.py"
++++ "b/pages/2_\342\234\215\357\270\217_LinkedIn_Posts.py"
+@@ -5,9 +5,10 @@ from pathlib import Path
+ from datetime import datetime
+ import time
+ 
+-st.set_page_config(page_title="LinkedIn Posts", page_icon="✍️")
++st.set_page_config(page_title="SBS Nexus – LinkedIn Posts", page_icon="✍️")
+ 
+-st.title("✍️ LinkedIn Posts Automation")
++st.title("✍️ SBS Nexus LinkedIn Automation")
++st.caption("Content für SBS Deutschland & HydraulikDoc AI LinkedIn Pages")
+ 
+ # Load Config
+ config_path = Path("config")
+@@ -27,21 +28,36 @@ except Exception as e:
+ # Sidebar
+ with st.sidebar:
+     st.header("⚙️ Post-Einstellungen")
+-    
++
+     openai_key = st.text_input("OpenAI API Key", type="password", value=os.getenv('OPENAI_API_KEY', ''))
+-    
+-    tone = st.selectbox("Tonalität", ["Professionell", "Informativ", "Thought Leadership"])
++
++    tone = st.selectbox("Tonalität", [
++        "Thought Leadership",
++        "Professionell / Informativ",
++        "Praxis-orientiert / How-To",
++        "Provokant / Kontrovers"
++    ])
+     length = st.slider("Länge (Wörter)", 100, 400, 250)
+ 
+-# Helper function for OpenAI calls
++    st.markdown("---")
++    linkedin_page = st.selectbox("LinkedIn Page", [
++        "SBS Deutschland GmbH",
++        "HydraulikDoc AI"
++    ])
++
++    st.markdown("---")
++    st.markdown("### 🔗 Pages")
++    st.markdown("""
++    - [SBS Deutschland](https://www.linkedin.com/company/sbs-deutschland-gmbh-co-kg/)
++    - [HydraulikDoc AI](https://www.linkedin.com/company/hydraulikdoc-ai/)
++    """)
++
++
+ def generate_with_openai(prompt, system_prompt="Du bist LinkedIn Content-Experte."):
+-    """Generate content using OpenAI API"""
+     if not openai_key:
+         raise ValueError("API Key fehlt")
+-    
+     from openai import OpenAI
+     client = OpenAI(api_key=openai_key)
+-    
+     response = client.chat.completions.create(
+         model="gpt-4",
+         messages=[
+@@ -49,43 +65,43 @@ def generate_with_openai(prompt, system_prompt="Du bist LinkedIn Content-Experte
+             {"role": "user", "content": prompt}
+         ],
+         temperature=0.8,
+-        max_tokens=600
++        max_tokens=800
+     )
+-    
+     return response.choices[0].message.content.strip()
+ 
++
+ # Main Content
+-tab1, tab2, tab3, tab4 = st.tabs(["📝 Neuer Post", "📚 Post-Serie", "📅 Content-Kalender", "📊 Posting-Plan"])
++tab1, tab2, tab3, tab4 = st.tabs(["📝 Neuer Post", "📚 Post-Serie", "📅 Content-Kalender", "📊 Hashtag-Strategie"])
+ 
+ with tab1:
+-    st.subheader("Post generieren")
+-    
++    st.subheader("SBS Nexus Post generieren")
++
+     themes = calendar.get('content_themes', [])
+-    
++
+     if not themes:
+         st.warning("⚠️ Keine Content-Themen gefunden!")
+         st.stop()
+-    
++
+     col1, col2 = st.columns([2, 1])
+-    
++
+     with col1:
+         theme_options = {f"{t['title']} ({t['category']})": t for t in themes}
+-        selected_theme = st.selectbox("Wähle Content-Thema", options=list(theme_options.keys()))
+-        
++        selected_theme = st.selectbox("Content-Thema", options=list(theme_options.keys()))
++
+         if selected_theme:
+             theme = theme_options[selected_theme]
+             st.info(f"**Kategorie:** {theme.get('category', 'N/A')}")
++            st.write(f"**Kontext:** {theme.get('context', 'N/A')}")
+             st.write(f"**Keywords:** {', '.join(theme.get('keywords', []))}")
+-    
++
+     with col2:
+         st.metric("Empfohlene Länge", f"{length} Wörter")
+-        if selected_theme:
+-            theme = theme_options[selected_theme]
+-            st.metric("Hashtags", len(theme.get('keywords', [])))
+-    
+-    custom_prompt = st.text_area("Zusätzliche Anweisungen (optional)", 
+-                                  placeholder="z.B. Erwähne Fallbeispiel aus Maschinenbau...")
+-    
++        st.metric("LinkedIn Page", linkedin_page)
++
++    custom_prompt = st.text_area("Zusätzliche Anweisungen (optional)",
++                                  placeholder="z.B. Erwähne konkrete Zahlen, beziehe dich auf E-Rechnungspflicht...",
++                                  height=80)
++
+     if st.button("✨ Post generieren", type="primary", use_container_width=True):
+         if not openai_key:
+             st.error("❌ Bitte OpenAI API Key eingeben!")
+@@ -93,201 +109,241 @@ with tab1:
+             with st.spinner("🤖 Generiere LinkedIn Post..."):
+                 try:
+                     theme = theme_options[selected_theme]
+-                    
+-                    prompt = f"""Erstelle einen professionellen LinkedIn-Post für SBS Deutschland:
++
++                    page_context = ""
++                    if linkedin_page == "SBS Deutschland GmbH":
++                        page_context = """
++UNTERNEHMEN: SBS Deutschland GmbH & Co. KG (Weinheim, Rhein-Neckar)
++PLATTFORM: SBS Nexus – Das operative OS für den fertigenden Mittelstand
++3 MODULE:
++  1. Finance Intelligence: KI-Rechnungsverarbeitung (8 Sek, 99,2%, DATEV + SAP Export)
++  2. Contract Intelligence: KI-Vertragsanalyse (Klauselerkennung, Fristenmanagement, Risikoanalyse) → contract.sbsdeutschland.com
++  3. Technical Intelligence / HydraulikDoc AI: Technische Dokumenten-KI (RAG für Datenblätter, Handbücher, Normen)
++ZIELGRUPPE: Steuerberater (89.000 in DE), fertigender Mittelstand (50-5.000 MA), KMU-Finanzentscheider
++PARTNERPROGRAMM: 15-25% Revenue Share für Steuerberater-Partner → www.sbsnexus.de/partner
++WEBSITES: www.sbsnexus.de | sbsdeutschland.com/sbshomepage/ | contract.sbsdeutschland.com
++DEMO: calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call
++COMPLIANCE: DSGVO-konform, Server in Frankfurt, E-Rechnungspflicht 2025
++DIFFERENZIERUNG: Multimodale KI (nicht regelbasierte OCR), SAP + DATEV Integration, 100% deutsche Server
++MARKT: €21,3 Mrd. Steuerberatung | DATEV 90%+ Marktanteil | Rhein-Neckar Industrieregion
++INTEGRATIONEN: DATEV UO, SAP S/4HANA, n8n Workflows, REST API, Webhooks, Batch Processing"""
++                    else:
++                        page_context = """
++UNTERNEHMEN: HydraulikDoc AI (Technical Intelligence Modul von SBS Nexus / SBS Deutschland GmbH & Co. KG)
++PRODUKT: KI-gestützte technische Dokumenten-Analyse (RAG-Architektur)
++USP: Beantwortet komplexe Servicefragen aus 80-Seiten Datenblättern in Sekunden
++ZIELGRUPPE: Serviceteams, Instandhaltung, Maschinenbau, Industriehydraulik
++TECHNOLOGIE: RAG Stack (LangChain + Vector-DB), Embeddings, PDF-Chunking
++BEISPIEL-QUELLEN: Bosch Rexroth, Herstellerdatenblätter, DIN-Normen, interne Manuals
++ANWENDUNGSFÄLLE: Prüfdrucke ermitteln, Dichtungsarten vergleichen, Medienkompatibilität prüfen
++WEBSITES: sbsdeutschland.com/sbshomepage/ | www.sbsnexus.de
++DEMO: calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call
++MUTTERPLATTFORM: SBS Nexus (Finance + Contract + Technical Intelligence)"""
++
++                    prompt = f"""Erstelle einen professionellen LinkedIn-Post:
++
++{page_context}
+ 
+ THEMA: {theme['title']}
+ KATEGORIE: {theme.get('category', 'Business')}
++KONTEXT: {theme.get('context', '')}
+ KEYWORDS: {', '.join(theme.get('keywords', []))}
+ 
+ TONALITÄT: {tone}
+ LÄNGE: Ca. {length} Wörter
+ 
+-STIL:
+-- Professionell und seriös
+-- Thought Leadership im deutschen Mittelstand
+-- Konkrete Insights
++STIL-VORGABEN:
++- Enterprise-Standard (Apple, SAP, NVIDIA Niveau)
++- Thought Leadership für deutschen Mittelstand & Steuerberater-Markt
++- Konkrete Zahlen und Fakten verwenden
++- Kein generisches Marketing-Blabla
++- Authentisch, nicht werblich
++- Bezug auf die 3 Module (Finance, Contract, Technical) wo passend
+ 
+ STRUKTUR:
+-1. Hook
+-2. Hauptaussage mit Mehrwert
+-3. Beispiel
+-4. Call-to-Action
+-5. Hashtags
++1. Hook (provokant oder überraschend)
++2. Problemdarstellung mit Marktdaten
++3. Lösung mit konkretem Nutzen
++4. Social Proof oder Zahlen
++5. Call-to-Action (subtil, Link zu sbsnexus.de oder Calendly)
++6. 3-5 relevante Hashtags
++
++HASHTAGS bevorzugt: #SBSNexus #ERechnung #Steuerberater #DATEV #KI #Mittelstand #HydraulikDoc
+ 
+ {f"ZUSATZ: {custom_prompt}" if custom_prompt else ""}
+ 
+-Schreibe NUR den Post."""
++Schreibe NUR den Post, keine Meta-Kommentare."""
+ 
+                     post_content = generate_with_openai(
+-                        prompt, 
+-                        "Du bist LinkedIn Content-Experte für B2B Enterprise im deutschen Mittelstand."
++                        prompt,
++                        "Du bist LinkedIn Content-Stratege für B2B Enterprise SaaS im deutschen Steuerberater-Markt. Du schreibst auf dem Niveau von Apple, SAP und NVIDIA Corporate Communications."
+                     )
+-                    
++
+                     st.session_state['generated_post'] = post_content
+                     st.session_state['post_theme'] = theme['title']
+-                    
+                     st.success("✅ Post erfolgreich generiert!")
+                     st.rerun()
+-                    
++
+                 except Exception as e:
+                     st.error(f"❌ Fehler: {str(e)}")
+-    
++
+     if 'generated_post' in st.session_state:
+         st.markdown("---")
+         st.subheader("📄 Generierter Post")
+-        
++
+         post_text = st.text_area(
+             "Post-Text (editierbar)",
+             value=st.session_state['generated_post'],
+-            height=300,
++            height=350,
+             key="post_display"
+         )
+-        
++
+         col_a, col_b, col_c = st.columns(3)
+-        
++
+         with col_a:
+-            if st.button("📤 Auf LinkedIn posten", use_container_width=True):
+-                st.warning("⚠️ LinkedIn API Integration in Entwicklung")
+-        
++            if st.button("📋 In Zwischenablage", use_container_width=True):
++                st.code(post_text, language=None)
++                st.info("👆 Text markieren und kopieren")
++
+         with col_b:
+             if st.button("🔄 Neu generieren", use_container_width=True):
+                 del st.session_state['generated_post']
+                 st.rerun()
+-        
++
+         with col_c:
+             st.download_button(
+                 "💾 Speichern",
+                 data=post_text,
+-                file_name=f"linkedin_post_{datetime.now().strftime('%Y%m%d_%H%M')}.txt",
++                file_name=f"linkedin_{linkedin_page.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M')}.txt",
+                 mime="text/plain",
+                 use_container_width=True
+             )
+ 
+ with tab2:
+-    st.subheader("📚 Content-Serie generieren")
+-    st.info("💡 Erstelle automatisch eine Serie von 5 LinkedIn Posts")
+-    
+-    serie_theme = st.text_input("Hauptthema der Serie", 
+-                                placeholder="z.B. Digital Transformation im Mittelstand")
+-    
+-    serie_style = st.selectbox("Stil der Serie", 
+-                              ["Professionell", "Educational", "Thought Leadership", "Storytelling"])
+-    
++    st.subheader("📚 SBS Nexus Content-Serie (5 Posts)")
++    st.info("💡 Erstelle automatisch eine 5-teilige LinkedIn Post-Serie")
++
++    serie_options = [
++        "E-Rechnungspflicht 2025 – Was Steuerberater wissen müssen",
++        "KI in der Steuerberatung – Von Hype zu Praxis",
++        "DATEV + KI: Die Zukunft der digitalen Kanzlei",
++        "Steuerberater als Technologie-Partner ihrer Mandanten",
++        "Eigenes Thema eingeben..."
++    ]
++
++    serie_choice = st.selectbox("Serie wählen", serie_options)
++
++    if serie_choice == "Eigenes Thema eingeben...":
++        serie_theme = st.text_input("Thema der Serie", placeholder="z.B. Automatisierung in der Buchhaltung")
++    else:
++        serie_theme = serie_choice
++
+     if st.button("🚀 Serie generieren (5 Posts)", type="primary", use_container_width=True):
+         if not openai_key:
+             st.error("❌ Bitte OpenAI API Key eingeben!")
+         elif not serie_theme:
+-            st.error("❌ Bitte Thema eingeben!")
++            st.error("❌ Bitte Thema wählen!")
+         else:
+             progress_bar = st.progress(0)
+             status = st.empty()
+-            
++
+             generated_serie = []
+-            
+             post_fokus = [
+-                "Einführung: Problem Statement",
+-                "Ursachen & Hintergründe",
+-                "Lösungsansätze",
+-                "Praxisbeispiel/Case Study",
+-                "Zusammenfassung & CTA"
++                "Hook & Problem Statement – Marktdaten & Dringlichkeit",
++                "Ursachen & Status Quo – Warum Steuerberater handeln müssen",
++                "Lösung & Technologie – SBS Nexus Produkt-Demo in Worten",
++                "Partnerprogramm & Business Case – ROI für Steuerberater",
++                "Vision & CTA – Die Zukunft der KI-gestützten Steuerberatung"
+             ]
+-            
++
+             for i in range(5):
+                 status.text(f"Generiere Post {i+1}/5...")
+-                
++
+                 prompt = f"""Erstelle LinkedIn Post {i+1} einer 5-teiligen Serie: {serie_theme}
+ 
+-FOKUS: {post_fokus[i]}
+-STIL: {serie_style}
++UNTERNEHMEN: SBS Deutschland GmbH & Co. KG (Weinheim)
++PLATTFORM: SBS Nexus – Das operative OS für den Mittelstand
++3 MODULE: Finance Intelligence (KI-Rechnungen, 8 Sek, DATEV + SAP) | Contract Intelligence (Vertragsanalyse) | Technical Intelligence / HydraulikDoc (Datenblatt-KI)
++ZIELGRUPPE: 89.000 Steuerberater + fertigender Mittelstand in DACH
++PARTNERPROGRAMM: 15-25% Revenue Share
++WEBSITES: www.sbsnexus.de | sbsdeutschland.com/sbshomepage/ | contract.sbsdeutschland.com
++DEMO: calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call
++
++FOKUS dieses Posts: {post_fokus[i]}
++TONALITÄT: Thought Leadership, Enterprise-Standard
+ LÄNGE: 200-300 Wörter
+ 
+-Zielgruppe: B2B Entscheider im deutschen Mittelstand
+-Schreibe konkret und praxisnah mit relevanten Hashtags."""
++Beziehe dich auf vorherige Posts der Serie. Nutze Hashtags: #SBSNexus #Steuerberater #DATEV
++Schreibe NUR den Post."""
+ 
+                 try:
+                     post_text = generate_with_openai(
+                         prompt,
+-                        "Du bist LinkedIn Content-Experte für B2B im deutschen Mittelstand."
++                        "Du bist LinkedIn Content-Stratege für B2B Enterprise SaaS im deutschen Steuerberater-Markt."
+                     )
+-                    
++
+                     generated_serie.append({
+                         'nummer': i+1,
+                         'text': post_text,
+                         'fokus': post_fokus[i]
+                     })
+-                    
++
+                     progress_bar.progress((i+1)/5)
+                     time.sleep(2)
+-                    
++
+                 except Exception as e:
+                     st.error(f"❌ Fehler bei Post {i+1}: {str(e)}")
+                     break
+-            
++
+             if len(generated_serie) == 5:
+                 status.text("✅ Serie komplett!")
+                 st.session_state['generated_serie'] = generated_serie
+                 st.balloons()
+                 st.rerun()
+-    
++
+     if 'generated_serie' in st.session_state:
+         st.markdown("---")
+-        st.subheader("📚 Generierte Post-Serie")
+-        
+         for post in st.session_state['generated_serie']:
+             with st.expander(f"📄 Post {post['nummer']}/5: {post['fokus']}"):
+-                st.text_area(
+-                    "Post-Text",
+-                    value=post['text'],
+-                    height=250,
+-                    key=f"serie_post_{post['nummer']}",
+-                    disabled=True
+-                )
+-                
+-                col_a, col_b = st.columns(2)
+-                with col_a:
+-                    st.download_button(
+-                        "💾 Speichern",
+-                        data=post['text'],
+-                        file_name=f"serie_post{post['nummer']}.txt",
+-                        key=f"dl_{post['nummer']}",
+-                        use_container_width=True
+-                    )
+-                with col_b:
+-                    if st.button("📤 Posten", key=f"post_{post['nummer']}", use_container_width=True):
+-                        st.info("LinkedIn API in Entwicklung")
+-        
+-        if st.button("🗑️ Serie löschen", use_container_width=True):
+-            del st.session_state['generated_serie']
+-            st.rerun()
++                st.text_area(f"Post {post['nummer']}", value=post['text'], height=250, key=f"serie_{post['nummer']}", disabled=True)
++                st.download_button("💾 Speichern", data=post['text'], file_name=f"serie_post{post['nummer']}.txt", key=f"dl_{post['nummer']}", use_container_width=True)
+ 
+ with tab3:
+     st.subheader("📅 Content-Kalender")
+-    
++
+     schedule = calendar.get('schedule', {})
+-    
+     if schedule:
+         st.metric("Posting-Frequenz", schedule.get('posting_frequency', 'N/A'))
+-        
++
+         st.markdown("### 🕒 Optimale Posting-Zeiten")
+-        
+         for time_slot in schedule.get('optimal_times', []):
+             with st.expander(f"**{time_slot.get('day')}** um {time_slot.get('time')}"):
+                 st.write(f"**Grund:** {time_slot.get('reason')}")
+ 
++        st.markdown("### 📱 LinkedIn Pages")
++        pages = schedule.get('linkedin_pages', {})
++        if pages:
++            st.markdown(f"- **Primary:** [{pages.get('primary', '')}]({pages.get('primary', '')})")
++            st.markdown(f"- **Secondary:** [{pages.get('secondary', '')}]({pages.get('secondary', '')})")
++
+ with tab4:
+-    st.subheader("📊 Content-Themen Übersicht")
+-    
+-    if themes:
+-        for i, theme in enumerate(themes, 1):
+-            col1, col2 = st.columns([3, 1])
+-            
+-            with col1:
+-                st.markdown(f"**{i}. {theme.get('title')}**")
+-                st.caption(f"Kategorie: {theme.get('category')}")
+-            
+-            with col2:
+-                if st.button("Nutzen", key=f"theme_{i}"):
+-                    st.info("Feature in Entwicklung")
+-            
+-            st.markdown("---")
++    st.subheader("📊 Hashtag-Strategie")
++
++    hashtags = calendar.get('hashtag_strategy', {})
++    if hashtags:
++        col1, col2, col3 = st.columns(3)
++        with col1:
++            st.markdown("### 🏷️ Primary")
++            for tag in hashtags.get('primary', []):
++                st.code(tag, language=None)
++        with col2:
++            st.markdown("### 🏷️ Secondary")
++            for tag in hashtags.get('secondary', []):
++                st.code(tag, language=None)
++        with col3:
++            st.markdown("### 🏷️ Trending")
++            for tag in hashtags.get('trending', []):
++                st.code(tag, language=None)
++
++st.markdown("---")
++st.caption("SBS Deutschland GmbH & Co. KG · LinkedIn: /sbs-deutschland-gmbh-co-kg/ · /hydraulikdoc-ai/ · sbsdeutschland.com/sbshomepage/")
+diff --git "a/pages/3_\360\237\216\257_Lead_Generation.py" "b/pages/3_\360\237\216\257_Lead_Generation.py"
+index 74e3b23..6742cc8 100644
+--- "a/pages/3_\360\237\216\257_Lead_Generation.py"
++++ "b/pages/3_\360\237\216\257_Lead_Generation.py"
+@@ -5,9 +5,10 @@ import pandas as pd
+ import requests
+ import os
+ 
+-st.set_page_config(page_title="Lead Generation", page_icon="🎯")
++st.set_page_config(page_title="SBS Nexus – Lead Generation", page_icon="🎯")
+ 
+-st.title("🎯 Lead Generation")
++st.title("🎯 Steuerberater Lead Generation")
++st.caption("Digitale Kanzleien finden, qualifizieren und in die Pipeline aufnehmen")
+ 
+ # Load ICP Config
+ config_path = Path("config")
+@@ -20,74 +21,95 @@ else:
+     st.error("❌ config/icp_filters.yaml nicht gefunden!")
+     st.stop()
+ 
+-# Sidebar - Hunter.io API
++# Sidebar
+ with st.sidebar:
+-    st.header("🔑 Hunter.io API")
+-    hunter_key = st.text_input("Hunter API Key", type="password", 
++    st.header("🔑 API Keys")
++    hunter_key = st.text_input("Hunter.io API Key", type="password",
+                                value=os.getenv('HUNTER_API_KEY', ''))
+     if hunter_key:
+         os.environ['HUNTER_API_KEY'] = hunter_key
+ 
++    st.markdown("---")
++    st.markdown("### 🔍 Recherche-Tools")
++    st.markdown("""
++    - [DATEV SmartExperts](https://smartexperts.datev.de/)
++    - [Steuerberater-Suche](https://www.steuerberater-suchservice.de/)
++    - [Digitale DATEV-Kanzlei](https://www.datev.de/web/de/datev-magazin/digitale-kanzlei/)
++    - [Hunter.io](https://hunter.io/)
++    """)
++
+ # Tabs
+-tab1, tab2, tab3 = st.tabs(["🎯 ICP Definition", "🔍 Lead Search", "📋 Lead-Liste"])
++tab1, tab2, tab3, tab4 = st.tabs(["🎯 ICP Definition", "🔍 Lead Search", "📋 Lead-Liste", "📊 Lead Scoring"])
+ 
+ with tab1:
+-    st.subheader("Ideal Customer Profile (ICP)")
+-    
++    st.subheader("Ideal Customer Profile – Steuerberater")
++
+     filters = icp.get('target_filters', {})
+-    
++
+     col1, col2 = st.columns(2)
+-    
++
+     with col1:
+         st.markdown("### 👔 Ziel-Positionen")
+         for title in filters.get('job_titles', []):
+             st.markdown(f"✓ {title}")
+-        
+-        st.markdown("### 🏭 Branchen")
+-        for industry in filters.get('industries', []):
+-            st.markdown(f"✓ {industry}")
+-    
++
++        st.markdown("### 🏢 Kanzlei-Typen")
++        for ct in filters.get('company_types', []):
++            st.markdown(f"✓ {ct}")
++
++        st.markdown("### 🎯 Spezialisierungen (Premium)")
++        for spec in filters.get('specializations', []):
++            st.markdown(f"✓ {spec}")
++
+     with col2:
+-        st.markdown("### 📊 Unternehmensgröße")
++        st.markdown("### 📊 Kanzleigröße")
+         company_size = filters.get('company_size', {})
+-        
+         col_min, col_max = st.columns(2)
+         with col_min:
+             st.metric("Minimum", f"{company_size.get('min', 0)} MA")
+         with col_max:
+             st.metric("Maximum", f"{company_size.get('max', 0)} MA")
+-        
+-        st.markdown("### 🌍 Regionen")
+-        for region in filters.get('regions', []):
+-            st.markdown(f"✓ {region}")
+-    
++
++        st.markdown("### 🌍 Regionen (Priorisiert)")
++        regions = filters.get('regions', {})
++        for tier, region_list in regions.items():
++            tier_label = tier.replace('_', ' ').title()
++            st.markdown(f"**{tier_label}:**")
++            for r in region_list:
++                st.markdown(f"  ✓ {r}")
++
++        st.markdown("### 💻 DATEV-Status")
++        datev = filters.get('datev_status', {})
++        for priority, items in datev.items():
++            label = priority.replace('priority_', '').title()
++            st.markdown(f"**{label}:**")
++            for item in items:
++                st.markdown(f"  ✓ {item}")
++
+     st.markdown("---")
+-    
+-    st.markdown("### ❌ Ausschluss-Kriterien")
+-    exclusions = icp.get('exclusion_criteria', {})
+-    
++
++    st.markdown("### 📈 Digital-Signale (Qualifizierungskriterien)")
++    signals = filters.get('digital_signals', {})
+     col_a, col_b = st.columns(2)
+-    
+     with col_a:
+-        st.markdown("**Keywords:**")
+-        for kw in exclusions.get('keywords', []):
+-            st.markdown(f"✗ {kw}")
+-    
++        st.markdown("**🟢 Starke Signale:**")
++        for s in signals.get('strong', []):
++            st.markdown(f"✓ {s}")
+     with col_b:
+-        st.markdown("**Branchen:**")
+-        for ind in exclusions.get('industries', []):
+-            st.markdown(f"✗ {ind}")
++        st.markdown("**🟡 Mittlere Signale:**")
++        for s in signals.get('medium', []):
++            st.markdown(f"~ {s}")
+ 
+ with tab2:
+-    st.subheader("🔍 Lead-Suche mit Hunter.io")
+-    
+-    search_method = st.radio("Such-Methode", ["Domain Search", "Email Finder"])
+-    
+-    if search_method == "Domain Search":
+-        st.info("💡 Finde alle öffentlichen Email-Adressen einer Domain")
+-        
+-        domain = st.text_input("Unternehmens-Domain", placeholder="beispiel-gmbh.de")
+-        
++    st.subheader("🔍 Steuerberater-Suche")
++
++    search_method = st.radio("Such-Methode", ["Domain Search (Hunter.io)", "Email Finder (Name + Domain)", "Manuelle Recherche"])
++
++    if search_method == "Domain Search (Hunter.io)":
++        st.info("💡 Finde alle öffentlichen Email-Adressen einer Kanzlei-Domain")
++
++        domain = st.text_input("Kanzlei-Domain", placeholder="stbstaat.de")
++
+         if st.button("🔍 Suche starten", type="primary", use_container_width=True):
+             if not hunter_key:
+                 st.error("❌ Bitte Hunter.io API Key eingeben!")
+@@ -97,86 +119,41 @@ with tab2:
+                 with st.spinner(f"Suche Emails für {domain}..."):
+                     try:
+                         url = "https://api.hunter.io/v2/domain-search"
+-                        params = {
+-                            "domain": domain,
+-                            "api_key": hunter_key,
+-                            "limit": 25
+-                        }
+-                        
++                        params = {"domain": domain, "api_key": hunter_key, "limit": 25}
+                         response = requests.get(url, params=params, timeout=15)
+                         response.raise_for_status()
+-                        
+                         data = response.json()
+-                        
++
+                         if 'data' in data:
+                             emails = data['data'].get('emails', [])
+-                            
+-                            # API Quota anzeigen
+-                            if 'meta' in data:
+-                                meta = data['meta']
+-                                if 'requests' in meta:
+-                                    used = meta['requests'].get('used', 0)
+-                                    available = meta['requests'].get('available', 0)
+-                                    st.info(f"📊 API Quota: {used} verwendet, {available} verfügbar")
+-                            
+                             if emails:
+                                 st.success(f"✅ {len(emails)} Emails gefunden!")
+-                                
+-                                # Dataframe erstellen
+                                 df_data = []
+                                 for email_info in emails:
+                                     df_data.append({
+                                         'Email': email_info.get('value', 'N/A'),
+                                         'Name': f"{email_info.get('first_name', '')} {email_info.get('last_name', '')}".strip(),
+                                         'Position': email_info.get('position', 'N/A'),
+-                                        'Type': email_info.get('type', 'N/A'),
+                                         'Confidence': f"{email_info.get('confidence', 0)}%"
+                                     })
+-                                
+                                 df = pd.DataFrame(df_data)
+                                 st.dataframe(df, use_container_width=True, hide_index=True)
+-                                
+-                                # Download Button
+                                 csv = df.to_csv(index=False)
+-                                st.download_button(
+-                                    "💾 Als CSV exportieren",
+-                                    csv,
+-                                    f"leads_{domain}.csv",
+-                                    "text/csv",
+-                                    use_container_width=True
+-                                )
++                                st.download_button("💾 CSV Export", csv, f"leads_{domain}.csv", "text/csv", use_container_width=True)
+                             else:
+-                                st.warning("⚠️ Keine öffentlichen Emails gefunden")
+-                                st.info("""
+-                                **Mögliche Gründe:**
+-                                - Domain ist zu klein/neu
+-                                - Keine öffentlichen Team-Seiten
+-                                - Emails sind nicht indexiert
+-                                
+-                                **Tipp:** Nutze "Email Finder" mit Namen von bekannten Mitarbeitern
+-                                """)
+-                    
+-                    except requests.exceptions.HTTPError as e:
+-                        if e.response.status_code == 422:
+-                            st.error("❌ Domain nicht gefunden oder ungültig")
+-                        elif e.response.status_code == 429:
+-                            st.error("❌ Rate Limit erreicht - zu viele Requests")
+-                        else:
+-                            st.error(f"❌ HTTP Error: {e}")
++                                st.warning("⚠️ Keine Emails gefunden – nutze Impressum/Kontaktseite der Kanzlei")
+                     except Exception as e:
+                         st.error(f"❌ Fehler: {str(e)}")
+-    
+-    else:  # Email Finder
+-        st.info("💡 Finde Email-Adresse basierend auf Name und Domain")
+-        
++
++    elif search_method == "Email Finder (Name + Domain)":
++        st.info("💡 Finde Email basierend auf Name und Kanzlei-Domain")
+         col1, col2 = st.columns(2)
+         with col1:
+-            first_name = st.text_input("Vorname", "Thomas")
++            first_name = st.text_input("Vorname", placeholder="Tobias")
+         with col2:
+-            last_name = st.text_input("Nachname", "Müller")
+-        
+-        domain = st.text_input("Domain", "beispiel-gmbh.de")
+-        
++            last_name = st.text_input("Nachname", placeholder="Staat")
++        domain = st.text_input("Domain", placeholder="stbstaat.de")
++
+         if st.button("🔍 Email finden", type="primary", use_container_width=True):
+             if not hunter_key:
+                 st.error("❌ Bitte Hunter.io API Key eingeben!")
+@@ -186,41 +163,81 @@ with tab2:
+                 with st.spinner("Suche Email..."):
+                     try:
+                         url = "https://api.hunter.io/v2/email-finder"
+-                        params = {
+-                            "domain": domain,
+-                            "first_name": first_name,
+-                            "last_name": last_name,
+-                            "api_key": hunter_key
+-                        }
+-                        
++                        params = {"domain": domain, "first_name": first_name, "last_name": last_name, "api_key": hunter_key}
+                         response = requests.get(url, params=params, timeout=15)
+                         response.raise_for_status()
+-                        
+                         data = response.json()
+-                        
+                         if 'data' in data:
+-                            email_data = data['data']
+-                            email = email_data.get('email')
+-                            score = email_data.get('score', 0)
+-                            
++                            email = data['data'].get('email')
++                            score = data['data'].get('score', 0)
+                             if email:
+                                 st.success(f"✅ Email gefunden: **{email}**")
+-                                st.metric("Confidence Score", f"{score}%")
++                                st.metric("Confidence", f"{score}%")
+                             else:
+                                 st.warning("⚠️ Keine Email gefunden")
+-                    
+                     except Exception as e:
+                         st.error(f"❌ Fehler: {str(e)}")
+ 
++    else:
++        st.markdown("### 📝 Manuelle Steuerberater-Recherche")
++        st.info("💡 Nutze folgende Quellen zur manuellen Recherche:")
++        st.markdown("""
++        1. **DATEV SmartExperts** – smartexperts.datev.de → Nach Stadt filtern
++        2. **Digitale DATEV-Kanzlei Label** – Kanzlei-Website prüfen
++        3. **Google: `"Digitale Kanzlei" + Stadt + Steuerberater`**
++        4. **Impressum** der Kanzlei-Website → E-Mail, Tel, Ansprechpartner
++        5. **LinkedIn** → Steuerberater + Stadt → Profil prüfen
++        """)
++
++        st.markdown("### ✅ Qualifizierungs-Checkliste")
++        col1, col2 = st.columns(2)
++        with col1:
++            st.checkbox("DATEV-Mitglied?", key="q1")
++            st.checkbox("Digitale DATEV-Kanzlei Label?", key="q2")
++            st.checkbox("Website modern / responsive?", key="q3")
++        with col2:
++            st.checkbox("DATEV Unternehmen Online aktiv?", key="q4")
++            st.checkbox("KI oder Digitalisierung erwähnt?", key="q5")
++            st.checkbox("Mandantenportal vorhanden?", key="q6")
++
+ with tab3:
+-    st.subheader("📋 Gespeicherte Leads")
+-    
+-    st.info("📊 Lead-Datenbank - Import/Export Funktionen")
+-    
+-    uploaded = st.file_uploader("CSV mit Leads hochladen", type=['csv'])
+-    
++    st.subheader("📋 Steuerberater Lead-Liste")
++    st.info("📊 Importiere die SBS_Steuerberater_Prospect_Liste.xlsx oder füge manuell Leads hinzu")
++
++    uploaded = st.file_uploader("CSV/XLSX mit Leads hochladen", type=['csv', 'xlsx'])
++
+     if uploaded:
+-        df = pd.read_csv(uploaded)
++        if uploaded.name.endswith('.csv'):
++            df = pd.read_csv(uploaded)
++        else:
++            df = pd.read_excel(uploaded)
+         st.dataframe(df, use_container_width=True)
+-        
+         st.success(f"✅ {len(df)} Leads geladen")
++
++        csv = df.to_csv(index=False)
++        st.download_button("💾 Als CSV exportieren", csv, "steuerberater_leads.csv", "text/csv", use_container_width=True)
++
++with tab4:
++    st.subheader("📊 Lead Scoring Modell")
++
++    scoring = icp.get('lead_scoring', {})
++    thresholds = scoring.pop('thresholds', {})
++
++    st.markdown("### Scoring-Kriterien")
++    scoring_df = pd.DataFrame([
++        {"Kriterium": k.replace('_', ' ').title(), "Punkte": v}
++        for k, v in scoring.items()
++    ])
++    st.dataframe(scoring_df, use_container_width=True, hide_index=True)
++
++    st.markdown("### Schwellenwerte")
++    col1, col2, col3 = st.columns(3)
++    with col1:
++        st.metric("🔥 Hot (Prio A)", f"≥ {thresholds.get('hot', 60)} Punkte")
++    with col2:
++        st.metric("🟡 Warm (Prio B)", f"≥ {thresholds.get('warm', 35)} Punkte")
++    with col3:
++        st.metric("🔵 Cold (Prio C)", f"≥ {thresholds.get('cold', 15)} Punkte")
++
++st.markdown("---")
++st.caption("SBS Deutschland GmbH & Co. KG · Steuerberater-Partnerprogramm · sbsnexus.de/partner · sbsdeutschland.com/sbshomepage/")
+diff --git "a/pages/4_\360\237\223\212_Analytics.py" "b/pages/4_\360\237\223\212_Analytics.py"
+index 9024cd8..685c760 100644
+--- "a/pages/4_\360\237\223\212_Analytics.py"
++++ "b/pages/4_\360\237\223\212_Analytics.py"
+@@ -4,9 +4,10 @@ from pathlib import Path
+ from datetime import datetime, timedelta
+ import json
+ 
+-st.set_page_config(page_title="Analytics", page_icon="📊", layout="wide")
++st.set_page_config(page_title="SBS Nexus – Analytics", page_icon="📊", layout="wide")
+ 
+-st.title("📊 Analytics Dashboard")
++st.title("📊 SBS Nexus GTM Analytics")
++st.caption("Kampagnen-Performance für Steuerberater-Outreach & LinkedIn Content")
+ 
+ # Versuche echte Daten zu laden
+ results_file = Path("campaign_results.csv")
+@@ -73,10 +74,10 @@ with tab1:
+         st.info("🔜 Keine Email-Kampagnen Daten verfügbar")
+         
+         mock_data = pd.DataFrame({
+-            'Email': ['max@example.de', 'anna@example.de', 'thomas@example.de'],
+-            'Unternehmen': ['TechCorp', 'MachineWorks', 'Precision'],
++            'Email': ['info@stbstaat.de', 'kanzlei@hrsteuer.de', 'kanzlei@steuba.de'],
++            'Unternehmen': ['StB Tobias Staat', 'HR Steuerberatung', 'STEUBA GmbH'],
+             'Status': ['✅ Gesendet', '✅ Gesendet', '❌ Fehler'],
+-            'Template': ['CEO', 'CTO', 'CFO'],
++            'Template': ['StB Digital-affin', 'StB Digital-affin', 'StB DATEV Label'],
+             'Timestamp': [datetime.now() - timedelta(hours=i) for i in range(3)]
+         })
+         st.dataframe(mock_data, use_container_width=True)
+@@ -85,7 +86,7 @@ with tab2:
+     st.subheader("📋 Template-Analyse")
+     
+     template_data = pd.DataFrame({
+-        'Template': ['CEO Template', 'CFO Template', 'CTO Template'],
++        'Template': ['StB Digital-affin', 'StB DATEV Label', 'KMU-Entscheider'],
+         'Verwendet': [12, 8, 5],
+         'Erfolgsquote': ['92%', '88%', '80%']
+     })
+@@ -108,3 +109,5 @@ if not has_real_data:
+     st.caption("💡 **Hinweis:** Dies sind Beispiel-Daten. Starte Email-Kampagnen um echte Analytics zu sehen.")
+ else:
+     st.caption(f"📊 Daten aktualisiert: {datetime.now().strftime('%d.%m.%Y %H:%M')}")
++
++st.caption("SBS Deutschland GmbH & Co. KG · Finance · Contract · Technical Intelligence · sbsnexus.de")
+diff --git "a/pages/5_\342\232\231\357\270\217_Einstellungen.py" "b/pages/5_\342\232\231\357\270\217_Einstellungen.py"
+index f4e316d..a3380a5 100644
+--- "a/pages/5_\342\232\231\357\270\217_Einstellungen.py"
++++ "b/pages/5_\342\232\231\357\270\217_Einstellungen.py"
+@@ -3,9 +3,10 @@ import os
+ from pathlib import Path
+ import yaml
+ 
+-st.set_page_config(page_title="Einstellungen", page_icon="⚙️")
++st.set_page_config(page_title="SBS Nexus – Einstellungen", page_icon="⚙️")
+ 
+-st.title("⚙️ Einstellungen")
++st.title("⚙️ SBS Nexus Einstellungen")
++st.caption("API Keys, Konfiguration & System-Status")
+ 
+ tab1, tab2, tab3 = st.tabs(["🔑 API Keys", "📋 Konfiguration", "🔧 System-Status"])
+ 
+diff --git a/src/ai/content_generator.py b/src/ai/content_generator.py
+index 6fd1e55..857485a 100755
+--- a/src/ai/content_generator.py
++++ b/src/ai/content_generator.py
+@@ -61,15 +61,28 @@ class ContentGenerator:
+         
+         return f"""Erstelle einen LinkedIn Post für {self.company_name}.
+ 
++UNTERNEHMEN: SBS Deutschland GmbH & Co. KG (Weinheim, Rhein-Neckar)
++PLATTFORM: SBS Nexus – Das operative OS für den fertigenden Mittelstand
++3 MODULE:
++  1. Finance Intelligence: KI-Rechnungsverarbeitung (8 Sek, 99,2% Genauigkeit, DATEV + SAP Export)
++  2. Contract Intelligence: KI-Vertragsanalyse (Klauselerkennung, Fristenmanagement) → contract.sbsdeutschland.com
++  3. Technical Intelligence / HydraulikDoc AI: Technische Dokumenten-KI (RAG für Datenblätter & Handbücher)
++ZIELGRUPPE: 89.000 Steuerberater in DE, fertigender Mittelstand (50-5.000 MA)
++PARTNERPROGRAMM: 15-25% Revenue Share für Steuerberater → www.sbsnexus.de/partner
++WEBSITES: www.sbsnexus.de | sbsdeutschland.com/sbshomepage/ | contract.sbsdeutschland.com
++DEMO: calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call
++COMPLIANCE: DSGVO-konform, Server in Frankfurt, E-Rechnungspflicht 2025
++LINKEDIN: /sbs-deutschland-gmbh-co-kg/ | /hydraulikdoc-ai/
++
+ Thema: {topic}
+ Stil: {style_descriptions.get(style, "professionell")}
+ Maximale Länge: {max_length} Zeichen
+ 
+ Struktur:
+-1. Aufmerksamkeitsstarke erste Zeile
+-2. Hauptinhalt mit Mehrwert
+-3. 3-5 relevante Hashtags
+-4. Call-to-Action
++1. Aufmerksamkeitsstarke erste Zeile (Hook)
++2. Hauptinhalt mit Mehrwert und konkreten Zahlen
++3. 3-5 relevante Hashtags (#SBSNexus #ERechnung #Steuerberater #DATEV #KI)
++4. Call-to-Action (Link zu sbsnexus.de oder Calendly)
+ 
+ Format:
+ [CONTENT]
+@@ -81,14 +94,14 @@ Dein Post-Text hier...
+ [CTA]
+ Dein Call-to-Action hier...
+ 
+-Schreibe auf Deutsch und halte dich an die Zeichenlimit!"""
++Schreibe auf Deutsch, Enterprise-Standard (Apple/SAP Niveau), authentisch und konkret!"""
+ 
+     def _generate_with_openai(self, prompt: str) -> str:
+         """Generiert Content mit OpenAI GPT-4"""
+         response = self.openai_client.chat.completions.create(
+             model="gpt-4o-mini",
+             messages=[
+-                {"role": "system", "content": "Du bist ein LinkedIn Marketing Experte für B2B Software-Unternehmen."},
++                {"role": "system", "content": "Du bist LinkedIn Content-Stratege für SBS Deutschland GmbH – ein Enterprise SaaS-Unternehmen im Bereich KI-gestützte Dokumentenverarbeitung (SBS Nexus). Du schreibst auf dem Niveau von Apple, SAP und NVIDIA Corporate Communications. Fokus: Steuerberater-Markt, DATEV-Integration, E-Rechnungspflicht."},
+                 {"role": "user", "content": prompt}
+             ],
+             temperature=0.7,
+@@ -102,7 +115,7 @@ Schreibe auf Deutsch und halte dich an die Zeichenlimit!"""
+             model="claude-3-5-sonnet-20241022",
+             max_tokens=600,
+             temperature=0.7,
+-            system="Du bist ein LinkedIn Marketing Experte für B2B Software-Unternehmen.",
++            system="Du bist LinkedIn Content-Stratege für SBS Deutschland GmbH – ein Enterprise SaaS-Unternehmen im Bereich KI-gestützte Dokumentenverarbeitung (SBS Nexus). Du schreibst auf dem Niveau von Apple, SAP und NVIDIA. Fokus: Steuerberater-Markt, DATEV-Integration, E-Rechnungspflicht.",
+             messages=[{"role": "user", "content": prompt}]
+         )
+         return message.content[0].text
+diff --git a/src/ai/enterprise_content_generator.py b/src/ai/enterprise_content_generator.py
+index 9882fd5..644a4e0 100755
+--- a/src/ai/enterprise_content_generator.py
++++ b/src/ai/enterprise_content_generator.py
+@@ -74,63 +74,66 @@ class EnterpriseContentGenerator:
+             "long": "2000-2500 Zeichen (ausführlich, thought leadership)"
+         }
+         
+-        return f"""Du bist der CFO/CTO von {self.company_name}, einem führenden Enterprise-SaaS-Anbieter im Bereich KI-gestützte Dokumentenanalyse.
++        return f"""Du bist Luis Orozco, Gründer & CEO von {self.company_name}, einem Enterprise-SaaS-Anbieter für KI-gestützte Dokumentenverarbeitung.
+ 
+-**AUFGABE:** Erstelle einen LinkedIn Post für ein C-Level B2B-Publikum.
++**AUFGABE:** Erstelle einen LinkedIn Post für ein B2B-Publikum.
+ 
+ **THEMA:** {topic}
+ 
++**UNTERNEHMEN – SBS Deutschland GmbH & Co. KG:**
++- Plattform: SBS Nexus – Das operative OS für den Mittelstand
++- Modul 1: Finance Intelligence (KI-Rechnungsverarbeitung, 8 Sek, 99,2%, DATEV + SAP Export)
++- Modul 2: Contract Intelligence (KI-Vertragsanalyse, Klauselerkennung, Fristenmanagement)
++- Modul 3: Technical Intelligence / HydraulikDoc AI (Technische Dokumenten-KI, RAG)
++- Partnerprogramm: 15-25% Revenue Share für Steuerberater → www.sbsnexus.de/partner
++- Websites: www.sbsnexus.de | sbsdeutschland.com/sbshomepage/ | contract.sbsdeutschland.com
++- Demo: calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call
++- Compliance: DSGVO-konform, Server in Frankfurt
++- LinkedIn: /sbs-deutschland-gmbh-co-kg/ | /hydraulikdoc-ai/
++
+ **ZIELGRUPPE:**
+-- CFOs, CTOs, Geschäftsführer
+-- Mittelständische bis große Unternehmen (50-5000 Mitarbeiter)
+-- DACH-Region, primär Deutschland
+-- Entscheider mit Budget-Verantwortung
++- Steuerberater & Kanzleiinhaber (89.000 in Deutschland, €21,3 Mrd. Markt)
++- CFOs, CTOs, Geschäftsführer im fertigenden Mittelstand
++- 50-5.000 Mitarbeiter, DACH-Region
++- DATEV 90%+ Marktanteil, E-Rechnungspflicht seit Januar 2025
+ 
+ **TON & STIL:**
+-- Professionell, aber nicht steif
+-- Datengetrieben (konkrete Zahlen/Statistiken wenn passend)
+-- Lösungsorientiert, nicht produkt-lastig
+-- Authentisch und glaubwürdig
+-- Klare Call-to-Actions
++- Enterprise-Standard (Apple, SAP, NVIDIA Niveau)
++- Thought Leadership mit konkreten Zahlen
++- Lösungsorientiert, authentisch und glaubwürdig
++- Persönliche Perspektive als Gründer
++- SBS Nexus und Module aktiv nennen
+ 
+ **STRUKTUR:**
+ 
+ [HOOK]
+ Aufmerksamkeitsstarke erste Zeile (max 65 Zeichen)
+-→ Stellt eine Frage oder provokante These
++→ Provokante These oder überraschende Zahl
+ 
+ [CONTEXT]
+ 2-3 Sätze Kontext zum Thema
+ → Warum ist das relevant? Welches Problem?
+-{"→ Nutze konkrete Zahlen/Statistiken" if include_data else ""}
++{\"→ Nutze konkrete Zahlen/Statistiken aus dem SBS Nexus Markt\" if include_data else \"\"}
+ 
+ [INSIGHT]
+-Deine Perspektive als Experte
+-→ Was haben Sie gelernt/beobachtet?
+-→ Praktische Erkenntnis
++Deine Perspektive als SBS Deutschland Gründer
++→ Was hast du beim Aufbau von SBS Nexus gelernt?
++→ Praktische Erkenntnis aus dem Steuerberater-Markt
+ 
+ [VALUE]
+ Mehrwert für den Leser
+ → Was kann der Leser konkret mitnehmen?
+-→ Actionable Insight
++→ Actionable Insight mit Bezug zu SBS Nexus Modulen
+ 
+ [CTA]
+ Call-to-Action
+-→ Einladung zur Diskussion oder nächster Schritt
++→ Link zu sbsnexus.de, Partner-Seite oder Calendly Demo
+ 
+ [HASHTAGS]
+-3-5 relevante Hashtags für B2B/Enterprise
+-Fokus: #EnterpriseSoftware #DigitalTransformation #CFO etc.
++3-5 Hashtags: #SBSNexus #ERechnung #Steuerberater #DATEV #KI #Mittelstand #HydraulikDoc
+ 
+ **LÄNGE:** {length_specs[target_length]}
+ 
+-**WICHTIG:**
+-- Keine direkten Produktnamen
+-- Fokus auf Problem & Lösung, nicht auf Features
+-- Authentische Stimme, persönliche Perspektive
+-- Professionell aber menschlich
+-- Deutsche Sprache, formell aber nicht steif
+-
+ Liefere den Post im oben genannten Format."""
+ 
+     def _generate_with_openai_enterprise(self, prompt: str) -> str:
+@@ -140,9 +143,10 @@ Liefere den Post im oben genannten Format."""
+             messages=[
+                 {
+                     "role": "system", 
+-                    "content": f"""Du bist ein erfahrener CFO/CTO von {self.company_name}. 
+-                    Du schreibst authentische, datengetriebene LinkedIn Posts für andere C-Level Executives.
+-                    Dein Content ist wertvoll, präzise und immer lösungsorientiert."""
++                    "content": f"""Du bist Luis Orozco, Gründer & CEO von {self.company_name}. 
++                    Du leitest SBS Nexus – eine KI-Plattform für Rechnungsverarbeitung, Vertragsanalyse und technische Dokumenten-KI.
++                    Du schreibst authentische, datengetriebene LinkedIn Posts auf Enterprise-Niveau (Apple/SAP/NVIDIA Standard).
++                    Dein Fokus: Steuerberater-Markt, DATEV-Integration, E-Rechnungspflicht, fertigender Mittelstand."""
+                 },
+                 {"role": "user", "content": prompt}
+             ],
+@@ -160,9 +164,10 @@ Liefere den Post im oben genannten Format."""
+             model="claude-3-5-sonnet-20241022",
+             max_tokens=1500,
+             temperature=0.7,
+-            system=f"""Du bist ein erfahrener CFO/CTO von {self.company_name}.
+-            Du schreibst authentische, datengetriebene LinkedIn Posts für andere C-Level Executives.
+-            Dein Content ist wertvoll, präzise und immer lösungsorientiert.""",
++            system=f"""Du bist Luis Orozco, Gründer & CEO von {self.company_name}.
++            Du leitest SBS Nexus – eine KI-Plattform für Rechnungsverarbeitung, Vertragsanalyse und technische Dokumenten-KI.
++            Du schreibst authentische, datengetriebene LinkedIn Posts auf Enterprise-Niveau (Apple/SAP/NVIDIA Standard).
++            Dein Fokus: Steuerberater-Markt, DATEV-Integration, E-Rechnungspflicht, fertigender Mittelstand.""",
+             messages=[{"role": "user", "content": prompt}]
+         )
+         return message.content[0].text
+diff --git a/streamlit_app.py b/streamlit_app.py
+index 0601402..927b6e2 100644
+--- a/streamlit_app.py
++++ b/streamlit_app.py
+@@ -1,84 +1,253 @@
+ #!/usr/bin/env python3
+ """
+-SBS GTM Automation - Haupt-Dashboard
++SBS Nexus GTM Automation Hub
++Enterprise Go-to-Market Automatisierung für SBS Deutschland GmbH & Co. KG
++Plattform: Finance Intelligence · Contract Intelligence · Technical Intelligence
+ """
+ import streamlit as st
+ 
+-# Page Config
+ st.set_page_config(
+-    page_title="SBS GTM Automation Hub",
+-    page_icon="🚀",
++    page_title="SBS Nexus – GTM Automation",
++    page_icon="⚡",
+     layout="wide",
+     initial_sidebar_state="expanded"
+ )
+ 
+-# Header
+-st.markdown("""
++# SBS Corporate Design
++SBS_BLUE = "#003856"
++SBS_YELLOW = "#FFB900"
++SBS_ORANGE = "#F97316"
++
++st.markdown(f"""
+ <style>
+-    .main-header {
+-        font-size: 3rem;
+-        font-weight: bold;
++    .main-header {{
++        font-size: 2.5rem;
++        font-weight: 800;
+         text-align: center;
+-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
++        background: linear-gradient(135deg, {SBS_BLUE} 0%, #005a8c 50%, {SBS_ORANGE} 100%);
+         -webkit-background-clip: text;
+         -webkit-text-fill-color: transparent;
+-        padding: 1rem 0;
+-    }
++        padding: 0.5rem 0;
++    }}
++    .sub-header {{
++        text-align: center;
++        color: #64748b;
++        font-size: 1.05rem;
++        margin-top: -0.5rem;
++    }}
++    .stMetric > div {{
++        border-left: 3px solid {SBS_ORANGE};
++        padding-left: 12px;
++    }}
++    .product-card {{
++        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
++        border: 1px solid #e2e8f0;
++        border-radius: 12px;
++        padding: 1.5rem;
++        margin-bottom: 1rem;
++    }}
++    .module-card {{
++        background: linear-gradient(135deg, #0f172a, #1e293b);
++        border: 1px solid #334155;
++        border-radius: 12px;
++        padding: 1.2rem;
++        margin-bottom: 0.8rem;
++        color: white;
++    }}
++    .module-card h4 {{ color: {SBS_ORANGE}; margin-bottom: 0.5rem; }}
++    .module-card p {{ color: #cbd5e1; font-size: 0.9rem; }}
++    a {{ color: {SBS_ORANGE}; }}
+ </style>
+ """, unsafe_allow_html=True)
+ 
+-st.markdown('<h1 class="main-header">🚀 SBS GTM Automation Hub</h1>', unsafe_allow_html=True)
++st.markdown('<h1 class="main-header">⚡ SBS Nexus GTM Automation</h1>', unsafe_allow_html=True)
++st.markdown('<p class="sub-header">Enterprise Go-to-Market · Finance · Contract · Technical Intelligence · DATEV & SAP Integration</p>', unsafe_allow_html=True)
+ st.markdown("---")
+ 
+-# Sidebar Info
++# Sidebar
+ with st.sidebar:
+-    st.image("https://placehold.co/200x80/667eea/ffffff?text=SBS+Deutschland", width='stretch')
++    st.markdown(f"""
++    <div style="text-align:center; padding: 1rem; background: linear-gradient(135deg, {SBS_BLUE}, #0f172a); border-radius: 12px; margin-bottom: 1rem;">
++        <h2 style="color: {SBS_ORANGE}; margin: 0; font-size: 1.6rem;">SBS Nexus</h2>
++        <p style="color: #94a3b8; margin: 0; font-size: 0.8rem;">Deutschland GmbH & Co. KG</p>
++    </div>
++    """, unsafe_allow_html=True)
++
+     st.markdown("---")
+-    st.markdown("### 👤 Benutzer")
+-    st.info("**Luis Schenk**\nInnovation Manager")
++    st.markdown("### 🏢 Plattform")
++    st.markdown("""
++    - [🌐 SBS Homepage](https://sbsdeutschland.com/sbshomepage/)
++    - [⚡ SBS Nexus](https://www.sbsnexus.de)
++    - [📊 SBS Nexus App](https://sbsdeutschland.com/sbshomepage/)
++    - [📄 Contract Intelligence](https://contract.sbsdeutschland.com/)
++    - [🔧 HydraulikDoc AI](https://www.linkedin.com/company/hydraulikdoc-ai/)
++    - [🤝 Partner-Programm](https://www.sbsnexus.de/partner)
++    """)
+     st.markdown("---")
+-    st.caption("Version 1.0.0")
+-
+-# Dashboard Content
+-st.header("📊 Übersicht")
++    st.markdown("### 🔗 LinkedIn")
++    st.markdown("""
++    - [SBS Deutschland](https://www.linkedin.com/company/sbs-deutschland-gmbh-co-kg/)
++    - [HydraulikDoc AI](https://www.linkedin.com/company/hydraulikdoc-ai/)
++    """)
++    st.markdown("---")
++    st.markdown("### 📅 Discovery Call")
++    st.markdown("[🗓️ 30-Min Demo buchen](https://calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call)")
++    st.markdown("---")
++    st.markdown("### 👤 Benutzer")
++    st.info("**Luis Orozco**\nGründer & CEO")
++    st.caption("Version 3.0.0 · Enterprise Edition")
+ 
+ # KPI Metrics
+-col1, col2, col3, col4 = st.columns(4)
++st.header("📊 GTM Command Center")
+ 
++col1, col2, col3, col4, col5 = st.columns(5)
+ with col1:
+-    st.metric("📧 Emails versendet", "3", "+3")
++    st.metric("🎯 StB-Leads", "50", "+50")
+ with col2:
+-    st.metric("🎯 Leads generiert", "0", "0")
++    st.metric("📧 Emails ready", "7", "Prio A")
+ with col3:
+-    st.metric("✍️ LinkedIn Posts", "0", "0")
++    st.metric("✍️ Content", "12", "Themen")
+ with col4:
+-    st.metric("📈 Erfolgsrate", "100%", "+100%")
++    st.metric("💰 Revenue Share", "15-25%", "Partner")
++with col5:
++    st.metric("🏢 Module", "3", "Live")
+ 
+ st.markdown("---")
+ 
+-# Quick Actions
+-st.subheader("🎯 Schnellzugriff")
++# SBS Nexus Platform — 3 Module
++st.subheader("⚡ SBS Nexus Plattform – Das operative OS für den Mittelstand")
+ 
+ col1, col2, col3 = st.columns(3)
+ 
++with col1:
++    st.markdown("""
++    <div class="module-card">
++    <h4>💰 Finance Intelligence</h4>
++    <p><b>KI-Rechnungsverarbeitung</b><br>
++    8 Sek. · 99,2% Genauigkeit · DATEV-Export<br>
++    XRechnung · ZUGFeRD · PDF<br>
++    Budget-Dashboard · Zahlungen & Skonto<br>
++    <i>→ Fokus: Steuerberater & KMU</i></p>
++    </div>
++    """, unsafe_allow_html=True)
++
++with col2:
++    st.markdown("""
++    <div class="module-card">
++    <h4>📄 Contract Intelligence</h4>
++    <p><b>KI-Vertragsanalyse</b><br>
++    Automatische Klauselerkennung<br>
++    Fristenmanagement · Risikoanalyse<br>
++    Kündigungsfristen-Alarm<br>
++    <i>→ contract.sbsdeutschland.com</i></p>
++    </div>
++    """, unsafe_allow_html=True)
++
++with col3:
++    st.markdown("""
++    <div class="module-card">
++    <h4>🔧 Technical Intelligence</h4>
++    <p><b>HydraulikDoc AI</b><br>
++    Technische Dokumenten-KI (RAG)<br>
++    Datenblätter · Handbücher · Normen<br>
++    Bosch Rexroth · Industriehydraulik<br>
++    <i>→ Fokus: Fertigender Mittelstand</i></p>
++    </div>
++    """, unsafe_allow_html=True)
++
++st.markdown("---")
++
++# Zielgruppe & Markt
++st.subheader("🎯 Markt & Zielgruppen")
++
++col1, col2, col3 = st.columns(3)
++with col1:
++    st.markdown("""
++    <div class="product-card">
++    <h4>🏛️ Steuerberater (Primär)</h4>
++    <p><b>89.000 StB</b> in Deutschland<br>
++    €21,3 Mrd. Marktvolumen<br>
++    DATEV 90%+ Marktanteil<br>
++    Fokus: Digitale DATEV-Kanzleien</p>
++    </div>
++    """, unsafe_allow_html=True)
++
++with col2:
++    st.markdown("""
++    <div class="product-card">
++    <h4>🏭 Fertigender Mittelstand</h4>
++    <p><b>SAP & DATEV</b> Umgebungen<br>
++    50-5.000 Mitarbeiter<br>
++    Maschinenbau · Automotive · Chemie<br>
++    Fokus: Rhein-Neckar & DACH</p>
++    </div>
++    """, unsafe_allow_html=True)
++
++with col3:
++    st.markdown("""
++    <div class="product-card">
++    <h4>🤝 Partner-Programm</h4>
++    <p><b>3-Tier Revenue Share</b><br>
++    15-25% dauerhaft pro Mandant<br>
++    14-Tage-Onboarding · Keine Vorabkosten<br>
++    <a href="https://www.sbsnexus.de/partner" target="_blank">sbsnexus.de/partner →</a></p>
++    </div>
++    """, unsafe_allow_html=True)
++
++st.markdown("---")
++
++# Quick Actions
++st.subheader("🚀 Schnellzugriff")
++
++col1, col2, col3 = st.columns(3)
+ with col1:
+     st.page_link("pages/1_📧_Email_Automation.py", label="📧 Email Automation", icon="📧")
+-    st.markdown("Erstellen und versenden Sie automatisierte Emails")
++    st.markdown("KI-personalisierte Outreach-Emails für Steuerberater & Industriekunden")
+ 
+ with col2:
+     st.page_link("pages/2_✍️_LinkedIn_Posts.py", label="✍️ LinkedIn Posts", icon="✍️")
+-    st.markdown("Generieren Sie LinkedIn-Inhalte mit KI")
++    st.markdown("Content für SBS Deutschland & HydraulikDoc AI – alle 3 Module")
+ 
+ with col3:
+     st.page_link("pages/3_🎯_Lead_Generation.py", label="🎯 Lead Generation", icon="🎯")
+-    st.markdown("Finden und qualifizieren Sie neue Leads")
++    st.markdown("Leads finden, qualifizieren & in die Pipeline – StB & Industrie")
+ 
+ st.markdown("---")
+ 
+-# Recent Activity
+-st.subheader("📋 Letzte Aktivitäten")
+-st.info("Noch keine Aktivitäten vorhanden. Starten Sie mit der Email-Automation!")
++# GTM Arsenal Status
++st.subheader("📋 GTM Arsenal – 13 Building Blocks")
++
++arsenal = {
++    "GTM Playbook (DOCX)": "✅",
++    "Blog SEO-Artikel (2x live)": "✅",
++    "Steuerberater-Partnerschaftsstrategie": "✅",
++    "Partner Landing Page (sbsnexus.de/partner)": "✅",
++    "Case Study Template": "✅",
++    "Webinar-Konzept (6 Sessions)": "✅",
++    "ROI-Infografik (PDF)": "✅",
++    "LinkedIn Optimization Pack": "✅",
++    "Outreach Execution Kit": "✅",
++    "CRM Tracking Template (XLSX)": "✅",
++    "Prospect-Datenbank (50 Kontakte)": "✅",
++    "Sendefertige E-Mails (7 Prio A)": "✅",
++    "GTM Automation Tool (diese App)": "✅",
++}
++
++cols = st.columns(3)
++for idx, (item, status) in enumerate(arsenal.items()):
++    with cols[idx % 3]:
++        st.markdown(f"{status} {item}")
+ 
+ # Footer
+ st.markdown("---")
+-st.caption("SBS Deutschland GmbH | Luis Schenk - Innovation Manager")
++st.markdown(f"""
++<div style="text-align:center; color: #94a3b8; font-size: 0.85rem;">
++    <b>SBS Deutschland GmbH & Co. KG</b> · Weinheim · Luis Orozco, Gründer & CEO<br>
++    <a href="https://sbsdeutschland.com/sbshomepage/">Homepage</a> ·
++    <a href="https://www.sbsnexus.de">SBS Nexus</a> ·
++    <a href="https://contract.sbsdeutschland.com/">Contracts</a> ·
++    <a href="https://www.sbsnexus.de/partner">Partner</a> ·
++    <a href="https://calendly.com/ki-sbsdeutschland/sbs-nexus-30-minuten-discovery-call">Demo buchen</a> ·
++    <a href="https://www.linkedin.com/company/sbs-deutschland-gmbh-co-kg/">LinkedIn</a>
++</div>
++""", unsafe_allow_html=True)
+-- 
+2.43.0
+
