@@ -1,3 +1,7 @@
+> **Historischer interner Entwicklungsbestand.** Dieses Repository gehört nicht zu den vier aktuellen SBS-Kernangeboten. Es ist keine Freigabe für Outreach, Kundendatenverarbeitung oder produktiven Betrieb. Aktuelles Portfolio: [SBS Deutschland](https://sbsdeutschland.com/).
+>
+> Lokale SQLite-Dateien werden beim Start durch die vorhandenen `_init_db`-Methoden erzeugt und dürfen nicht versioniert werden. Die drei am 23.11.2026 geprüften aktuellen Datenbankdateien enthielten jeweils null Datensätze. Das ist keine Prüfung der gesamten Git-Historie oder alter Kopien.
+
 # ⚡ SBS Nexus GTM Automation
 
 **Enterprise Go-To-Market Automation für SBS Deutschland GmbH & Co. KG**
