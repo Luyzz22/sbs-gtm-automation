@@ -1,4 +1,5 @@
 """Offline transport checks: no real credentials, contacts or outbound requests."""
+import io
 import json
 import os
 import tempfile
@@ -10,9 +11,28 @@ import requests
 import resend
 from dotenv import dotenv_values, set_key
 from requests.adapters import HTTPAdapter
+from PIL import Image
 
 
 class DependencyCompatibilityTests(unittest.TestCase):
+    def test_image_decoders_preserve_dimensions(self):
+        for format_name in ("PNG", "JPEG", "TIFF"):
+            with self.subTest(format=format_name):
+                stream = io.BytesIO()
+                Image.new("RGB", (12, 8), (80, 120, 160)).save(stream, format=format_name)
+                stream.seek(0)
+                with Image.open(stream) as decoded:
+                    decoded.load()
+                    self.assertEqual(decoded.size, (12, 8))
+
+    def test_main_streamlit_page_renders_without_network(self):
+        from streamlit.testing.v1 import AppTest
+
+        with patch("socket.socket.connect", side_effect=AssertionError("Network disabled")):
+            app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "streamlit_app.py")).run(timeout=30)
+            self.assertFalse(app.exception, [item.message for item in app.exception])
+            self.assertEqual(len(app.metric), 5)
+
     def test_tls_verification_gets_a_distinct_pool_configuration(self):
         request = requests.Request("GET", "https://example.invalid/").prepare()
         adapter = HTTPAdapter()
